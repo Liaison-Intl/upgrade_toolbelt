@@ -6,6 +6,6 @@ Utilities to help upgrading a ~250K line Rails app.
 
 * Travis CI log downloading
 * Log parsing for...
-  * ...deprecation notices
+  * Deprecation notices
   * Rails tests
   * Jasmine specs
