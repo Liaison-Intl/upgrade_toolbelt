@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+tests = []
+passed = []
+
+ARGV.each do |log_filename|
+  log = File.read(log_filename)
+
+  if (match_data = log.match(/(\d+) tests, (\d+) passed, \d+ failures, \d+ errors, \d+ skips, \d+ assertions/))
+    tests << match_data[1].to_i
+    passed << match_data[2].to_i
+  end
+
+  if (match_data = log.match(/(\d+) specs, (\d+) failures/))
+    tests << match_data[1].to_i
+    passed << match_data[1].to_i - match_data[2].to_i
+  end
+end
+
+puts "tests: #{tests.inspect}"
+puts "passed: #{passed.inspect}"
+
+total_tests = tests.reduce(0.0) { |a, e| a += e }
+total_passed = passed.reduce(0.0) { |a, e| a += e }
+puts total_passed / total_tests

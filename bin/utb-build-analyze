@@ -1,0 +1,30 @@
+# vim: set ft=sh:
+
+show_usage() {
+  cat <<EOF
+Usage: $0 build_number
+
+Example: $0 15946
+
+NOTE: Use the build **number** not the build **id** from the URL!
+EOF
+  exit 1
+}
+
+if [ "$1" == "" ]; then
+  show_usage
+fi
+
+build_number="$1"
+
+cd "/var/ci"
+
+if [ ! -d "$UTB_OWNER_AND_REPO/build_$build_number" ]; then
+  utb-travis-logs-download "$UTB_OWNER_AND_REPO" "$build_number" "$UTB_JOB_COUNT"
+fi
+
+cd "$UTB_OWNER_AND_REPO/build_$build_number"
+utb-deprecations-categorize *.txt > deprecations.txt
+utb-tests-passing *.txt > passing.txt
+grep --no-filename 'Running Rails' *.txt | uniq | sed 's/Running Rails //' > rails_version.txt
+grep --no-filename 'Running Ruby ' *.txt | uniq | sed 's/Running Ruby //' > ruby_version.txt

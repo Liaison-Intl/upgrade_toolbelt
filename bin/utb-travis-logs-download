@@ -1,0 +1,30 @@
+# vim: set ft=sh:
+
+show_usage() {
+  cat <<EOF
+Usage: $0 repo build_number job_count
+
+Example: $0 benjaminoakes/maid 407 10
+
+Download logs from Travis CI for analysis.
+
+NOTE: Use the build **number** not the build **id** from the URL!
+EOF
+  exit 1
+}
+
+
+if [ "$1" == "" ] || [ "$2" == "" ] || [ "$3" == "" ]; then
+  show_usage
+fi
+
+owner_and_repo="$1"
+build_number="$2"
+job_count="$3"
+build_dir="$owner_and_repo/build_$build_number"
+
+mkdir -p "$build_dir"
+
+for job_number in $(seq 1 $job_count); do
+  travis logs -r "$owner_and_repo" "$build_number.$job_number" > "$build_dir/$job_number.txt"
+done

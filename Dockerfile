@@ -9,6 +9,7 @@ RUN echo 'export PATH="/opt/bin:$PATH"' > /etc/profile.d/upgrade_toolbelt.sh
 RUN pkg-apk ca-certificates
 RUN update-ca-certificates
 
+RUN pkg-apk grep=2.25-r0
 RUN pkg-apk ruby=2.3.1-r0
 RUN pkg-apk ruby-dev=2.3.1-r0
 RUN pkg-apk build-base=0.4-r1

@@ -1,0 +1,13 @@
+# vim: set ft=sh:
+
+cd "/var/ci/$UTB_OWNER_AND_REPO"
+
+for build_dir in *; do
+  echo $build_dir
+  echo "==========="
+  echo
+  cat $build_dir/*_version.txt
+  tail -n1 $build_dir/deprecations.txt
+  tail -n1 $build_dir/passing.txt
+  echo
+done
