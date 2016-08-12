@@ -19,9 +19,7 @@ build_number="$1"
 
 cd "/var/ci"
 
-if [ ! -d "$UTB_OWNER_AND_REPO/build_$build_number" ]; then
-  utb-travis-logs-download "$UTB_OWNER_AND_REPO" "$build_number" "$UTB_JOB_COUNT"
-fi
+utb-travis-logs-download "$UTB_OWNER_AND_REPO" "$build_number" "$UTB_JOB_COUNT"
 
 cd "$UTB_OWNER_AND_REPO/build_$build_number"
 utb-deprecations-categorize *.txt > deprecations.txt

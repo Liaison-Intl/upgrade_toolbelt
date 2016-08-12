@@ -23,6 +23,14 @@ build_number="$2"
 job_count="$3"
 build_dir="$owner_and_repo/build_$build_number"
 
+echo '[info] If you are analyzing a private repo, run `travis login --pro` to log in.'
+echo '[info] If you are on a VPN, this may not work.'
+
+if [ -d "$build_dir" ]; then
+  echo "[warn] $build_dir already exists; skipping log download."
+  exit
+fi
+
 mkdir -p "$build_dir"
 
 for job_number in $(seq 1 $job_count); do
