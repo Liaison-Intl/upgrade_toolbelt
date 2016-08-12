@@ -6,11 +6,13 @@ passed = []
 ARGV.each do |log_filename|
   log = File.read(log_filename)
 
+  # Rails
   if (match_data = log.match(/(\d+) tests, (\d+) passed, \d+ failures, \d+ errors, \d+ skips, \d+ assertions/))
     tests << match_data[1].to_i
     passed << match_data[2].to_i
   end
 
+  # Jasmine
   if (match_data = log.match(/(\d+) specs, (\d+) failures/))
     tests << match_data[1].to_i
     passed << match_data[1].to_i - match_data[2].to_i
