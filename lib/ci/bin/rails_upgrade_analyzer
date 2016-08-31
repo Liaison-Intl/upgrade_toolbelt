@@ -1,0 +1,135 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/rails_upgrade_analyzer"
+
+module RailsUpgradeAnalyzer
+  class Listener
+
+    REPO_NAME = "Liaison-Intl/WebAdMIT"
+
+    RAILS_4_ACCEPTED = "Rails 4 Accepted"
+    RAILS_4_REJECTED = "Rails 4 Rejected"
+    RAILS_4_REBASE = "Rails 4 CI Needed (rebase master)"
+
+    def listen
+      login
+
+      Travis::Pro.listen(webadmit) do |stream|
+        stream.on("build:finished") do |event|
+          run(event.build)
+        end
+      end
+    end
+
+    def run_one(build_number)
+      login
+
+      build = webadmit.build(build_number)
+      run(build)
+    end
+
+    private
+
+    attr_reader :build_number
+
+    def login
+      Travis::Pro.github_auth(GithubProxy.access_token)
+    end
+
+    def run(build)
+      puts "Analyzing PR: #{build.pull_request_number}"
+      results = analyze_build(build, "Current")
+      puts "Getting master results"
+      master_results = analyze_build(last_complete_master_build, "Master")
+      report_results(build, results, master_results)
+    end
+
+    def last_complete_master_build
+      webadmit.builds.detect do |build|
+        build.branch_info == "master" && build.finished?
+      end
+    end
+
+    def analyze_build(build, name)
+      build.jobs.map do |job|
+        next unless job.allow_failure?
+        analyze_job(job, name)
+      end.compact
+    end
+
+    def report_results(build, results, master_results)
+      puts "Reporting Results"
+      github = GithubProxy.new(REPO_NAME, build.pull_request_number)
+      github.login
+
+      github.remove_label(RAILS_4_ACCEPTED)
+      github.remove_label(RAILS_4_REJECTED)
+      github.remove_label(RAILS_4_REBASE)
+
+      if results.length != master_results.length
+        error_message = "Cannot be compared to master. Manual comparison is necessary."
+        puts error_message
+        github.add_comment("Rails 4 Status: #{error_message}")
+        github.add_labels_to_an_issue([RAILS_4_REBASE])
+        return
+      end
+
+      comment = StringIO.new
+      comment << "# Rails 4 Build Results\n"
+
+      any_failing = false
+      overall_master_result = JobResult.new("Overall", description: "Master")
+      overall_feature_result = JobResult.new("Overall", description: "Current")
+
+      results.each_with_index do |result, index|
+        master_result = master_results[index]
+
+        overall_master_result << master_result
+        overall_feature_result << result
+
+        this_failing = false
+
+        if result.passing_percent < master_result.passing_percent
+          any_failing = true
+          this_failing = true
+        end
+
+        mark = this_failing ? ":x:" : ":white_check_mark:"
+
+        comment << "\n## Job: #{result.job_number}"
+        comment << " #{mark}\n\n"
+        comment << ResultReporter.new(master_result, result).report
+      end
+
+      overall_failing = (any_failing || overall_feature_result.passing_percent < overall_master_result.passing_percent)
+      mark = overall_failing ? ":x:" : ":white_check_mark:"
+
+      comment << "\n## Overall"
+      comment << " #{mark}\n\n"
+      comment << ResultReporter.new(overall_master_result, overall_feature_result).report
+
+      if overall_failing
+        github.add_labels_to_an_issue([RAILS_4_REJECTED])
+      else
+        github.add_labels_to_an_issue([RAILS_4_ACCEPTED])
+      end
+
+      github.add_comment(comment.string)
+    end
+
+    def analyze_job(job, name)
+      puts "Analyzing job: #{job.number}"
+      link = "[#{name}](https://travis-ci.com/Liaison-Intl/WebAdMIT/jobs/#{job.id})"
+      body = job.log.clean_body
+      match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
+      JobResult.new(job.number, description: link, tests: match[:tests], passed: match[:passed], failures: match[:failures], errors: match[:errors])
+    end
+
+    def webadmit
+      @webadmit ||= Travis::Pro::Repository.find(REPO_NAME)
+    end
+  end
+end
+
+#RailsUpgradeAnalyzer::Listener.new.run_one("16506")
+RailsUpgradeAnalyzer::Listener.new.listen
