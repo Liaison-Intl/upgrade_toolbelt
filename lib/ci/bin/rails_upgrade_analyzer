@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
+require "stringio"
 require_relative "../lib/rails_upgrade_analyzer"
+require_relative "../../deprecation_summary"
 
 module RailsUpgradeAnalyzer
   class Listener
@@ -10,6 +12,7 @@ module RailsUpgradeAnalyzer
     RAILS_4_ACCEPTED = "Rails 4 Accepted"
     RAILS_4_REJECTED = "Rails 4 Rejected"
     RAILS_4_REBASE = "Rails 4 CI Needed (rebase master)"
+    RAILS_4_WARNING = "Rails 4 Check Deprecation Warnings"
 
     def listen
       puts "Initializing build listener"
@@ -102,18 +105,30 @@ module RailsUpgradeAnalyzer
         end
 
         mark = this_failing ? ":x:" : ":white_check_mark:"
+        reporter = ResultReporter.new(master_result, result)
+
+        if reporter.deprecation_warnings_changed?
+          github.add_labels_to_an_issue([RAILS_4_WARNING])
+        end
 
         comment << "\n## Job: #{result.job_number}"
         comment << " #{mark}\n\n"
-        comment << ResultReporter.new(master_result, result).report
+        comment << "### Test report\n\n"
+        comment << reporter.report
+        comment << "### Deprecation report\n\n"
+        comment << reporter.deprecation_report
       end
 
       overall_failing = (any_failing || overall_feature_result.passing_percent < overall_master_result.passing_percent)
       mark = overall_failing ? ":x:" : ":white_check_mark:"
+      overall_reporter = ResultReporter.new(overall_master_result, overall_feature_result)
 
       comment << "\n## Overall"
       comment << " #{mark}\n\n"
-      comment << ResultReporter.new(overall_master_result, overall_feature_result).report
+      comment << "### Test report\n\n"
+      comment << overall_reporter.report
+      comment << "### Deprecation report\n\n"
+      comment << overall_reporter.deprecation_report
 
       if overall_failing
         github.add_labels_to_an_issue([RAILS_4_REJECTED])
@@ -129,7 +144,14 @@ module RailsUpgradeAnalyzer
       link = "[#{name}](https://travis-ci.com/Liaison-Intl/WebAdMIT/jobs/#{job.id})"
       body = job.log.clean_body
       match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
-      JobResult.new(job.number, description: link, tests: match[:tests], passed: match[:passed], failures: match[:failures], errors: match[:errors])
+      summary = DeprecationSummary.new(StringIO.new(body).readlines)
+      JobResult.new(job.number,
+        description: link,
+        tests: match[:tests],
+        passed: match[:passed],
+        failures: match[:failures],
+        errors: match[:errors],
+        deprecations: summary.deprecations)
     end
 
     def webadmit
