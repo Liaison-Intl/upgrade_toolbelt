@@ -17,13 +17,12 @@ RUN pkg-gem io-console
 
 RUN gem install bundler
 
-
-COPY ./ ./
-
-WORKDIR ./lib/ci/
-
+COPY Gemfile Gemfile
+COPY Gemfile.lock Gemfile.lock
 RUN bundle install
 
-RUN echo 'export PATH="/opt/bin:$PATH"' > /etc/profile.d/upgrade_toolbelt.sh
-CMD ./bin/rails_upgrade_analyzer
+COPY . .
 
+WORKDIR lib/ci/
+
+CMD ./bin/rails_upgrade_analyzer
