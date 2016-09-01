@@ -12,6 +12,8 @@ module RailsUpgradeAnalyzer
     RAILS_4_REBASE = "Rails 4 CI Needed (rebase master)"
 
     def listen
+      puts "Initializing build listener"
+
       login
 
       Travis::Pro.listen(webadmit) do |stream|
@@ -37,6 +39,11 @@ module RailsUpgradeAnalyzer
     end
 
     def run(build)
+      unless build.pull_request?
+        puts "Build #{} is not a pull request. Skipping."
+        return
+      end
+
       puts "Analyzing PR: #{build.pull_request_number}"
       results = analyze_build(build, "Current")
       puts "Getting master results"
