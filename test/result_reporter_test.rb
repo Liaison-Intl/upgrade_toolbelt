@@ -1,5 +1,4 @@
-require "minitest/autorun"
-require_relative "../lib/rails_upgrade_analyzer"
+require "test_helper"
 
 class TestResult < MiniTest::Unit::TestCase
 

@@ -22,6 +22,7 @@ GEM
     json (2.0.2)
     launchy (2.4.3)
       addressable (~> 2.3)
+    minitest (5.9.0)
     multi_json (1.12.1)
     multipart-post (2.0.0)
     net-http-persistent (2.9.4)
@@ -31,6 +32,7 @@ GEM
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
+    rake (10.5.0)
     sawyer (0.7.0)
       addressable (>= 2.3.5, < 2.5)
       faraday (~> 0.8, < 0.10)
@@ -52,7 +54,9 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
+  minitest
   octokit
+  rake (~> 10.5.0)
   travis
 
 RUBY VERSION
