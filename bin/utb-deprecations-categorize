@@ -1,31 +1,16 @@
 #!/usr/bin/env ruby
+require_relative "../lib/deprecation_summary"
 
-total = 0
-counts = Hash.new { 0 }
+all_logs = []
 
 ARGV.each do |log_filename|
   log = File.readlines(log_filename)
-  deprecations = log.grep(/DEPRECATION/)
-  total += deprecations.length
-
-  deprecations.each do |line|
-    clean = line.sub(/.*DEPRECATION/, 'DEPRECATION')
-    first_sentence = clean.split('. ').first.strip
-
-    if (match = first_sentence.match(/^DEPRECATION WARNING: The following options in your .+? declaration are deprecated: (.+?)$/))
-      options_used = match[1]
-      category = "DEPRECATION WARNING: The following options in your [has_many or has_one] declaration are deprecated: #{options_used}"
-    elsif first_sentence.match(/^DEPRECATION WARNING: It looks like you are eager loading table\(s\) (\(.+?\)) that are referenced in a string SQL snippet/)
-      category = 'DEPRECATION WARNING: It looks like you are eager loading table(s) ([...]) that are referenced in a string SQL snippet'
-    else
-      category = first_sentence
-    end
-
-    counts[category] += 1
-  end
+  all_logs << log
 end
 
-counts.
+summary = DeprecationSummary.new(all_logs.flatten)
+
+summary.deprecations.
   sort_by { |category, count| count }.
   each do |category, count|
     tabs = count < 10 ? "\t\t" : "\t"
@@ -33,4 +18,4 @@ counts.
   end
 
 puts
-puts "Total: #{total} deprecations"
+puts "Total: #{summary.deprecation_count} deprecations"
