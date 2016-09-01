@@ -45,8 +45,10 @@ class TestResult < MiniTest::Unit::TestCase
   end
 
   def test_adding_results
-    result1 = RailsUpgradeAnalyzer::JobResult.new("jobnum", tests: 2, passed: 3, failures: 5, errors: 7)
-    result2 = RailsUpgradeAnalyzer::JobResult.new("jobnum", tests: 11, passed: 13, failures: 17, errors: 19)
+    deprecations1 = { "warning1" => 1 }
+    deprecations2 = { "warning1" => 2, "warning2" => 9 }
+    result1 = RailsUpgradeAnalyzer::JobResult.new("jobnum", tests: 2, passed: 3, failures: 5, errors: 7, deprecations: deprecations1)
+    result2 = RailsUpgradeAnalyzer::JobResult.new("jobnum", tests: 11, passed: 13, failures: 17, errors: 19, deprecations: deprecations2)
 
     result1 << result2
 
@@ -54,5 +56,18 @@ class TestResult < MiniTest::Unit::TestCase
     assert_equal 16, result1.passed
     assert_equal 22, result1.failures
     assert_equal 26, result1.errors
+    assert_equal({ "warning1" => 3, "warning2" => 9 }, result1.deprecations)
+  end
+
+  def test_with_deprecations
+    result = RailsUpgradeAnalyzer::JobResult.new("jobnum", deprecations: { "warning1" => 99 })
+
+    assert_equal({ "warning1" => 99 }, result.deprecations)
+  end
+
+  def test_without_deprecations
+    result = RailsUpgradeAnalyzer::JobResult.new("jobnum")
+
+    assert_equal(Hash.new, result.deprecations)
   end
 end
