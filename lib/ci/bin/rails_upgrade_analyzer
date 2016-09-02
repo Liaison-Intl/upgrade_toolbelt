@@ -43,7 +43,7 @@ module RailsUpgradeAnalyzer
 
     def run(build)
       unless build.pull_request?
-        puts "Build #{} is not a pull request. Skipping."
+        puts "Build #{build.number} is not a pull request. Skipping."
         return
       end
 
