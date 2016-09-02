@@ -111,24 +111,28 @@ module RailsUpgradeAnalyzer
           github.add_labels_to_an_issue([RAILS_4_WARNING])
         end
 
-        comment << "\n## Job: #{result.job_number}"
-        comment << " #{mark}\n\n"
-        comment << "### Test report\n\n"
+        comment << "<details>"
+        comment << "\n<summary><strong>Job: #{result.job_number} #{mark}</strong></summary>\n\n"
+        comment << "<p>"
+        comment << "<strong>Test report</strong>\n\n"
         comment << reporter.report
-        comment << "### Deprecation report\n\n"
+        comment << "<strong>Deprecation report</strong>\n\n"
         comment << reporter.deprecation_report
+        comment << "</p></details><br />"
       end
 
       overall_failing = (any_failing || overall_feature_result.passing_percent < overall_master_result.passing_percent)
       mark = overall_failing ? ":x:" : ":white_check_mark:"
       overall_reporter = ResultReporter.new(overall_master_result, overall_feature_result)
 
-      comment << "\n## Overall"
-      comment << " #{mark}\n\n"
-      comment << "### Test report\n\n"
+      comment << "<details>"
+      comment << "\n<summary><strong>Overall #{mark}</strong></summary>\n\n"
+      comment << "<p>"
+      comment << "<strong>Test report</strong>\n\n"
       comment << overall_reporter.report
-      comment << "### Deprecation report\n\n"
+      comment << "<strong>Deprecation report</strong>\n\n"
       comment << overall_reporter.deprecation_report
+      comment << "</p></details>"
 
       if overall_failing
         github.add_labels_to_an_issue([RAILS_4_REJECTED])
@@ -141,7 +145,7 @@ module RailsUpgradeAnalyzer
 
     def analyze_job(job, name)
       puts "Analyzing job: #{job.number}"
-      link = "[#{name}](https://travis-ci.com/Liaison-Intl/WebAdMIT/jobs/#{job.id})"
+      link = "<a href='https://travis-ci.com/Liaison-Intl/WebAdMIT/jobs/#{job.id})'>#{name}</a>"
       body = job.log.clean_body
       match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
       summary = DeprecationSummary.new(StringIO.new(body).readlines)

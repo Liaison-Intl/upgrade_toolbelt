@@ -60,14 +60,16 @@ class TestResult < MiniTest::Unit::TestCase
   end
 
   def test_with_deprecations
-    result = RailsUpgradeAnalyzer::JobResult.new("jobnum", deprecations: { "warning1" => 99 })
+    result = RailsUpgradeAnalyzer::JobResult.new("jobnum", deprecations: { "warning1" => 99, "warning2" => 1 })
 
-    assert_equal({ "warning1" => 99 }, result.deprecations)
+    assert_equal({ "warning1" => 99, "warning2" => 1 }, result.deprecations)
+    assert_equal(100, result.deprecation_count)
   end
 
   def test_without_deprecations
     result = RailsUpgradeAnalyzer::JobResult.new("jobnum")
 
     assert_equal(Hash.new, result.deprecations)
+    assert_equal(0, result.deprecation_count)
   end
 end
