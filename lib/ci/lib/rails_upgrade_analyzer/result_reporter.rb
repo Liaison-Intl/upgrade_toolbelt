@@ -1,4 +1,5 @@
 require "stringio"
+require "builder"
 
 module RailsUpgradeAnalyzer
   class ResultReporter
@@ -33,37 +34,51 @@ module RailsUpgradeAnalyzer
     end
 
     def build_deprecation_report
-      io = StringIO.new
-      add_deprecation_report_header(io)
+      builder = Builder::XmlMarkup.new(indent: 2)
+      builder.table do |table|
+        add_deprecation_report_header(table)
 
-      all_deprecation_categories.each do |category|
-        difference = deprecations2[category] - deprecations1[category]
-        if difference != 0
-          data = [category, deprecations1[category], deprecations2[category], difference]
-          io << data.join(" | ")
-          io << "\n"
-          @deprecation_warnings_changed = true
+        table.tbody do |tbody|
+          all_deprecation_categories.each do |category|
+            difference = deprecations2[category] - deprecations1[category]
+            if difference != 0
+              tbody.tr do |tr|
+                tr.td(category)
+                tr.td(deprecations1[category])
+                tr.td(deprecations2[category])
+                tr.td(difference)
+                @deprecation_warnings_changed = true
+              end
+            end
+          end
+
+          if !deprecation_warnings_changed?
+            tbody.tr do |tr|
+              tr.td("#{result1.deprecation_count} deprecation(s) found on both builds.", colspan: 4)
+            end
+          end
         end
       end
-
-      if !deprecation_warnings_changed?
-        io << "No deprecation differences found|"
-      end
-
-      io.string
     end
 
     def build_report
-      io = StringIO.new
-      add_report_header(io)
+      builder = Builder::XmlMarkup.new(indent: 2)
+      builder.table do |table|
+        add_report_header(table)
 
-      all_results.each do |result|
-        data = [result.description, result.tests, result.passed, result.failures, result.errors, result.passing_percent]
-        io << data.join(" | ")
-        io << "\n"
+        table.tbody do |tbody|
+          all_results.each do |result|
+            tbody.tr do |tr|
+              tr << "<td>#{result.description}</td>\n"
+              tr.td(result.tests)
+              tr.td(result.passed)
+              tr.td(result.failures)
+              tr.td(result.errors)
+              tr.td(result.passing_percent)
+            end
+          end
+        end
       end
-
-      io.string
     end
 
     def deprecations1
@@ -76,14 +91,22 @@ module RailsUpgradeAnalyzer
       result2.deprecations
     end
 
-    def add_report_header(io)
-      io << "Branch | Tests | Passed | Failures | Errors | Passing %\n"
-      io << ":----- | :---: | :----: | :------: | :----: | :-----:\n"
+    def add_report_header(table)
+      headers = ["Branch", "Tests", "Passed", "Failures", "Errors", "Passing %"]
+      add_headers(table, headers)
     end
 
-    def add_deprecation_report_header(io)
-      io << "Deprecation | Result 1 | Result 2 | Difference\n"
-      io << ":-- | :--: | :--: | :--:\n"
+    def add_deprecation_report_header(table)
+      headers = ["Deprecation", "Result 1", "Result 2", "Difference"]
+      add_headers(table, headers)
+    end
+
+    def add_headers(table, headers)
+      table.thead do |thead|
+        headers.each do |column|
+          thead.th(column)
+        end
+      end
     end
   end
 end

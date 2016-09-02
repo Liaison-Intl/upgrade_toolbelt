@@ -13,6 +13,10 @@ module RailsUpgradeAnalyzer
       @deprecations = options.fetch(:deprecations, Hash.new(0))
     end
 
+    def deprecation_count
+      deprecations.each_value.inject(&:+) || 0
+    end
+
     def passing_percent
       return 0 if tests == 0
 
