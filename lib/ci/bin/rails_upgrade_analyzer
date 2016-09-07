@@ -47,6 +47,8 @@ module RailsUpgradeAnalyzer
         return
       end
 
+      webadmit.session.clear_cache
+
       puts "Analyzing PR: #{build.pull_request_number}"
       results = analyze_build(build, "Current")
       puts "Getting master results"
