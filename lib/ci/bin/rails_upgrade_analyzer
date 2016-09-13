@@ -52,13 +52,19 @@ module RailsUpgradeAnalyzer
       puts "Analyzing PR: #{build.pull_request_number}"
       results = analyze_build(build, "Current")
       puts "Getting master results"
-      master_results = analyze_build(last_complete_master_build, "Master")
+      base = base_branch(build)
+      master_results = analyze_build(last_complete_build(base), base)
       report_results(build, results, master_results)
     end
 
-    def last_complete_master_build
+    def base_branch(build)
+      match = build.branch_info.match(/\A[^\s]*/)
+      match ? match[0] : nil
+    end
+
+    def last_complete_build(base)
       webadmit.builds.detect do |build|
-        build.branch_info == "master" && build.finished?
+        base_branch(build) == base && build.finished? && !build.pull_request?
       end
     end
 
