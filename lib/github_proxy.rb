@@ -10,11 +10,7 @@ module UpgradeAnalyzer
     end
 
     def client
-      @client || fail("You must login first")
-    end
-
-    def login
-      @client = Octokit::Client.new(access_token: github_token)
+      @client ||= Octokit::Client.new(access_token: github_token)
     end
 
     def add_comment(comment)

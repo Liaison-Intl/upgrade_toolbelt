@@ -99,7 +99,6 @@ module UpgradeAnalyzer
     def report_results(build, results, base_results)
       puts "Reporting Results"
       github = GithubProxy.new(repo_name, build.pull_request_number, github_token)
-      github.login
 
       github.remove_label(UPGRADE_ACCEPTED)
       github.remove_label(UPGRADE_REJECTED)
@@ -177,6 +176,8 @@ module UpgradeAnalyzer
       link = "<a href='https://travis-ci.com/#{repo_name}/jobs/#{job.id})'>#{name}</a>"
       body = job.log.clean_body
       match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
+      return unless match
+
       summary = DeprecationSummary.new(StringIO.new(body).readlines)
       JobResult.new(job.number,
         description: link,
