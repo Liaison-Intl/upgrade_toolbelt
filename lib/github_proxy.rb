@@ -1,17 +1,12 @@
-module RailsUpgradeAnalyzer
+module UpgradeAnalyzer
   class AuthenticationError < RuntimeError
   end
 
   class GithubProxy
-    def self.access_token
-      ENV.fetch("GITHUB_TOKEN") do
-        raise AuthenticationError, "You must set GITHUB_TOKEN with a personal access token"
-      end
-    end
-
-    def initialize(repo_name, pull_request_number)
+    def initialize(repo_name, pull_request_number, github_token)
       @repo_name = repo_name
       @pull_request_number = pull_request_number
+      @github_token = github_token
     end
 
     def client
@@ -19,7 +14,7 @@ module RailsUpgradeAnalyzer
     end
 
     def login
-      @client = Octokit::Client.new(access_token: self.class.access_token)
+      @client = Octokit::Client.new(access_token: github_token)
     end
 
     def add_comment(comment)
@@ -38,6 +33,6 @@ module RailsUpgradeAnalyzer
 
     private
 
-    attr_reader :pull_request_number, :repo_name
+    attr_reader :github_token, :pull_request_number, :repo_name
   end
 end

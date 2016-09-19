@@ -3,10 +3,10 @@ require "test_helper"
 class TestResult < MiniTest::Unit::TestCase
 
   def test_build_results
-    result1 = RailsUpgradeAnalyzer::JobResult.new("1234.1", description: "Result 1", tests: 3, passed: 2, failures: 5, errors: 7)
-    result2 = RailsUpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", tests: 11, passed: 13, failures: 17, errors: 19)
+    result1 = UpgradeAnalyzer::JobResult.new("1234.1", description: "Result 1", tests: 3, passed: 2, failures: 5, errors: 7)
+    result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", tests: 11, passed: 13, failures: 17, errors: 19)
 
-    reporter = RailsUpgradeAnalyzer::ResultReporter.new(result1, result2)
+    reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
 
     assert_equal "<table>", line(reporter, 0)
     assert_equal "<thead>", line(reporter, 1)
@@ -42,10 +42,10 @@ class TestResult < MiniTest::Unit::TestCase
   end
 
   def test_nested_html_in_description
-    result1 = RailsUpgradeAnalyzer::JobResult.new("1234.1", description: "<p>Inner HTML</p>", tests: 1)
-    result2 = RailsUpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", tests: 2)
+    result1 = UpgradeAnalyzer::JobResult.new("1234.1", description: "<p>Inner HTML</p>", tests: 1)
+    result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", tests: 2)
 
-    reporter = RailsUpgradeAnalyzer::ResultReporter.new(result1, result2)
+    reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
 
     assert_equal '<td><p>Inner HTML</p></td>', line(reporter, 11)
     assert !reporter.deprecation_warnings_changed?
@@ -54,10 +54,10 @@ class TestResult < MiniTest::Unit::TestCase
   def test_deprecation_warnings
     deprecations1 = { "A warning" => 1, "Another warning" => 9, "No diff" => 5 }
     deprecations2 = { "A warning" => 2, "No diff" => 5 }
-    result1 = RailsUpgradeAnalyzer::JobResult.new("1234.1", description: "Result 1", deprecations: deprecations1)
-    result2 = RailsUpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", deprecations: deprecations2)
+    result1 = UpgradeAnalyzer::JobResult.new("1234.1", description: "Result 1", deprecations: deprecations1)
+    result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", deprecations: deprecations2)
 
-    reporter = RailsUpgradeAnalyzer::ResultReporter.new(result1, result2)
+    reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
 
     assert_equal "<table>", deprecation_line(reporter, 0)
     assert_equal "<thead>", deprecation_line(reporter, 1)
@@ -91,10 +91,10 @@ class TestResult < MiniTest::Unit::TestCase
   def test_no_deprecation_difference
     deprecations1 = { "A warning" => 12 }
     deprecations2 = { "A warning" => 12 }
-    result1 = RailsUpgradeAnalyzer::JobResult.new("1234.1", description: "Result 1", deprecations: deprecations1)
-    result2 = RailsUpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", deprecations: deprecations2)
+    result1 = UpgradeAnalyzer::JobResult.new("1234.1", description: "Result 1", deprecations: deprecations1)
+    result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", deprecations: deprecations2)
 
-    reporter = RailsUpgradeAnalyzer::ResultReporter.new(result1, result2)
+    reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
 
     assert_equal '<td colspan="4">12 deprecation(s) found on both builds.</td>', deprecation_line(reporter, 9)
     assert !reporter.deprecation_warnings_changed?

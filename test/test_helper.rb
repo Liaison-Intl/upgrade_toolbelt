@@ -1,2 +1,2 @@
 require "minitest/autorun"
-require_relative "../lib/ci/lib/rails_upgrade_analyzer"
+require_relative "../lib/upgrade_analyzer"
