@@ -18,14 +18,15 @@ Runs a process that watches for Travis builds to finish and inspects the results
 There are probably better ways of doing this. This is a work in progress.
 
 ### Build the container with a new version number (v2):
-sudo docker build -t gcr.io/rails-upgrade-analyzer/ci:v2 -f lib/ci/Dockerfile.upgrade_analyzer .
+sudo docker build -t gcr.io/wa-qa-1087/ci:v2 -f Dockerfile.upgrade_analyzer .
 
 ### Publish the container to GCE:
-sudo gcloud docker push gcr.io/rails-upgrade-analyzer/ci:v2
+sudo gcloud docker push gcr.io/wa-qa-1087/ci:v2
 
 ### Deploy the container:
+gcloud container clusters get-credentials utilities --zone us-east1-d --project wa-qa-1087
 kubectl delete deployment rails-upgrade-analyzer
-kubectl run rails-upgrade-analyzer --listen --repo=REPO --token=GITHUB_TOKEN --image=gcr.io/rails-upgrade-analyzer/ci:v3
+kubectl run rails-upgrade-analyzer --listen --repo=REPO --token=GITHUB_TOKEN --image=gcr.io/wa-qa-1087/ci:v2
 
 ### External Documentation
 
