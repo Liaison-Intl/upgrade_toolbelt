@@ -1,7 +1,7 @@
 require "stringio"
 require "builder"
 
-module RailsUpgradeAnalyzer
+module UpgradeAnalyzer
   class ResultReporter
 
     def initialize(result1, result2)

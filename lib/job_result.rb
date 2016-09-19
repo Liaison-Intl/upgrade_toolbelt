@@ -1,4 +1,4 @@
-module RailsUpgradeAnalyzer
+module UpgradeAnalyzer
   class JobResult
 
     attr_reader :deprecations, :description, :job_number, :tests, :passed, :failures, :errors
