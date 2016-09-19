@@ -14,7 +14,7 @@ module UpgradeAnalyzer
     end
 
     def deprecation_count
-      deprecations.each_value.inject(&:+) || 0
+      deprecations.values.inject(&:+) || 0
     end
 
     def passing_percent

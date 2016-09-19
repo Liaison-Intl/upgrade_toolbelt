@@ -23,8 +23,8 @@ module UpgradeAnalyzer
 
     def remove_label(label)
       client.remove_label(repo_name, pull_request_number, label)
-    rescue
-      # Ignore, it probably doesn't have the label to begin with.
+    rescue URI::InvalidURIError
+      # Ignore: The pull request does not have the label to begin with.
     end
 
     private

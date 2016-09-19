@@ -9,7 +9,7 @@ class DeprecationSummary
   end
 
   def deprecation_count
-    deprecations.each_value.inject(&:+) || 0
+    deprecations.values.inject(&:+) || 0
   end
 
   private
