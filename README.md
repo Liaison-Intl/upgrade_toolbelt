@@ -26,7 +26,7 @@ sudo gcloud docker push gcr.io/wa-qa-1087/ci:v2
 ### Deploy the container:
 gcloud container clusters get-credentials utilities --zone us-east1-d --project wa-qa-1087
 kubectl delete deployment rails-upgrade-analyzer
-kubectl run rails-upgrade-analyzer --listen --repo=REPO --token=GITHUB_TOKEN --image=gcr.io/wa-qa-1087/ci:v2
+kubectl run rails-upgrade-analyzer --image=gcr.io/wa-qa-1087/ci:v2 -- /lib/ci/bin/rails_upgrade_analyzer --listen --repo=REPO --token=GITHUB_TOKEN
 
 ### External Documentation
 
