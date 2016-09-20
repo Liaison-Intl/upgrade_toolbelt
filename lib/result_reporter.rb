@@ -13,7 +13,7 @@ module UpgradeAnalyzer
     end
 
     def deprecation_warnings_changed?
-      @deprecation_warnings_changed
+      @deprecation_warnings_changed ||= all_deprecation_categories.any? { |category| difference_for_category(category) != 0 }
     end
 
     def failed?
@@ -29,19 +29,23 @@ module UpgradeAnalyzer
     attr_reader :base_result, :pull_request_result
 
     def all_deprecation_categories
-      (deprecations1.keys + deprecations2.keys).uniq.sort
+      (base_deprecations.keys + pull_request_deprecations.keys).uniq.sort
     end
 
     def all_results
       @all_results = [base_result, pull_request_result]
     end
 
-    def deprecations1
+    def base_deprecations
       base_result.deprecations.default = 0
       base_result.deprecations
     end
 
-    def deprecations2
+    def difference_for_category(category)
+      pull_request_deprecations[category] - base_deprecations[category]
+    end
+
+    def pull_request_deprecations
       pull_request_result.deprecations.default = 0
       pull_request_result.deprecations
     end
