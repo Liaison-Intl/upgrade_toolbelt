@@ -35,6 +35,20 @@ class TestResult < MiniTest::Unit::TestCase
     assert !reporter.deprecation_warnings_changed?
   end
 
+  def test_pass_fail
+    result1 = UpgradeAnalyzer::JobResult.new("1234.1", description: "Result 1", tests: 10, passed: 8, failures: 1, errors: 1)
+    result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", tests: 10, passed: 9, failures: 1, errors: 0)
+
+    reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
+
+    assert !reporter.failed?
+
+    result2.passed = 7
+    result2.errors = 2
+
+    assert reporter.failed?
+  end
+
   def test_nested_html_in_description
     result1 = UpgradeAnalyzer::JobResult.new("1234.1", description: "<p>Inner HTML</p>", tests: 1)
     result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", tests: 2)
