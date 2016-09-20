@@ -26,20 +26,34 @@ sudo gcloud docker push gcr.io/wa-qa-1087/ci:v5
 ### Deploy the container:
 gcloud container clusters get-credentials utilities --zone us-east1-d --project wa-qa-1087
 
+### Point to GKE 'utilities' cluster
+gcloud container clusters get-credentials utilities \
+    --zone us-east1-d --project wa-qa-1087
+kubectl proxy
+
+### Create and store the secret on GKE -- only need to be done once
+kubectl create secret generic upgrade-analyzer-secrets --from-literal=github-token=YOUR_GITHUB_TOKEN
+
 ### New way to deploy declaratively -- first time
 kubectl create -f kubectl_config/upgrade-analyzer-deployment
 
 ### New way to deploy declaratively -- when already exist
-kubectl replace -f kubectl_config/upgrade-analyzer-deployment
+kubectl replace -f kubectl_config/upgrade-analyzer-deployment.yml
 
 ### Previous way to deploy imperatively
-#kubectl delete deployment rails-upgrade-analyzer
-#kubectl run rails-upgrade-analyzer --image=gcr.io/wa-qa-1087/ci:v5 --command -- /opt/ci/bin/upgrade_analyzer --listen --repo=REPO --token=GITHUB_TOKEN
+kubectl delete deployment rails-upgrade-analyzer
+kubectl run rails-upgrade-analyzer --image=gcr.io/wa-qa-1087/ci:v5 --command -- /opt/ci/bin/upgrade_analyzer --listen --repo=REPO --token=GITHUB_TOKEN
 
 ### Useful kubernetes commands
 kubectl get pods
+kubectl get deployments
+kubectl get secrets
 kubectl logs PODS_NAME
 kubectl exec -it PODS_NAME -- sh
+kubectl run -i --tty test --image=gcr.io/wa-qa-1087/ci:v5 -- sh
+kubectl delete deployment NAME_OF_DEPLOYMENT
+kubectl describe secret/upgrade-analyzer-secrets
+kubectl get secret upgrade-analyzer-secrets -o yaml  # secrets show as base64
 
 ### External Documentation
 
@@ -47,6 +61,7 @@ https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 https://cloud.google.com/container-engine/docs/quickstart
 https://github.com/travis-ci/travis.rb#table-of-contents
 http://octokit.github.io/octokit.rb/Octokit.html
+http://kubernetes.io/docs/user-guide/secrets/
 
 ## Developer setup
 
