@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: upgrade-analyzer-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: upgrade-analyzer
+    spec:
+      containers:
+      - name: upgrade-analyzer
+        image: gcr.io/wa-qa-1087/ci:v5
+        imagePullPolicy: Always
+        command: [ "/opt/ci/bin/upgrade_analyzer", "--listen", "--repo=Liaison-Intl/WebAdMIT", "--token=YOUR_GITHUB_TOKEN" ]

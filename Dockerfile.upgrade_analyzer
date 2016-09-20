@@ -19,9 +19,10 @@ RUN echo 'gem: --no-rdoc --no-ri' >> /etc/gemrc && \
 COPY Gemfile Gemfile
 COPY Gemfile.lock Gemfile.lock
 RUN bundle install
+RUN mkdir -p /opt/ci
 
-COPY . .
+COPY . /opt/ci
 
-WORKDIR lib/ci/
+WORKDIR /opt/ci/
 
-CMD ./bin/rails_upgrade_analyzer
+CMD /opt/ci/bin/upgrade_analyzer
