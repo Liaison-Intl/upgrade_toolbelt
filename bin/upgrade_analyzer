@@ -72,7 +72,7 @@ module UpgradeAnalyzer
       repo.session.clear_cache
 
       puts "Analyzing PR: #{build.pull_request_number}"
-      results = analyze_build(build, "Current")
+      results = analyze_build(build, "current")
       puts "Getting results for base branch"
       base = base_branch(build)
       base_results = analyze_build(last_complete_build(base), base)
@@ -116,8 +116,8 @@ module UpgradeAnalyzer
       comment << "# Upgrade Build Results\n"
 
       any_failing = false
-      overall_base_result = JobResult.new("Overall", description: "Base")
-      overall_feature_result = JobResult.new("Overall", description: "Current")
+      overall_base_result = JobResult.new("Overall", description: base_branch(build))
+      overall_feature_result = JobResult.new("Overall", description: "current")
 
       results.each_with_index do |result, index|
         base_result = base_results[index]
