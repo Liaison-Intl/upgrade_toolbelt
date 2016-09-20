@@ -18,15 +18,28 @@ Runs a process that watches for Travis builds to finish and inspects the results
 There are probably better ways of doing this. This is a work in progress.
 
 ### Build the container with a new version number (v2):
-sudo docker build -t gcr.io/wa-qa-1087/ci:v2 -f Dockerfile.upgrade_analyzer .
+sudo docker build -t gcr.io/wa-qa-1087/ci:v5 -f Dockerfile.upgrade_analyzer .
 
 ### Publish the container to GCE:
-sudo gcloud docker push gcr.io/wa-qa-1087/ci:v2
+sudo gcloud docker push gcr.io/wa-qa-1087/ci:v5
 
 ### Deploy the container:
 gcloud container clusters get-credentials utilities --zone us-east1-d --project wa-qa-1087
-kubectl delete deployment rails-upgrade-analyzer
-kubectl run rails-upgrade-analyzer --image=gcr.io/wa-qa-1087/ci:v2 -- /lib/ci/bin/rails_upgrade_analyzer --listen --repo=REPO --token=GITHUB_TOKEN
+
+### New way to deploy declaratively -- first time
+kubectl create -f kubectl_config/upgrade-analyzer-deployment
+
+### New way to deploy declaratively -- when already exist
+kubectl replace -f kubectl_config/upgrade-analyzer-deployment
+
+### Previous way to deploy imperatively
+#kubectl delete deployment rails-upgrade-analyzer
+#kubectl run rails-upgrade-analyzer --image=gcr.io/wa-qa-1087/ci:v5 --command -- /opt/ci/bin/upgrade_analyzer --listen --repo=REPO --token=GITHUB_TOKEN
+
+### Useful kubernetes commands
+kubectl get pods
+kubectl logs PODS_NAME
+kubectl exec -it PODS_NAME -- sh
 
 ### External Documentation
 
