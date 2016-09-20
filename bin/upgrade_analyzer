@@ -142,10 +142,7 @@ module UpgradeAnalyzer
         comment << "<details>"
         comment << "\n<summary><strong>Job: #{result.job_number} #{mark}</strong></summary>\n\n"
         comment << "<p>"
-        comment << "<strong>Test report</strong>\n\n"
         comment << reporter.report
-        comment << "<strong>Deprecation report</strong>\n\n"
-        comment << reporter.deprecation_report
         comment << "</p></details><br />"
       end
 
@@ -156,10 +153,7 @@ module UpgradeAnalyzer
       comment << "<details>"
       comment << "\n<summary><strong>Overall #{mark}</strong></summary>\n\n"
       comment << "<p>"
-      comment << "<strong>Test report</strong>\n\n"
       comment << overall_reporter.report
-      comment << "<strong>Deprecation report</strong>\n\n"
-      comment << overall_reporter.deprecation_report
       comment << "</p></details>"
 
       if overall_failing
