@@ -9,26 +9,28 @@ class TestResult < MiniTest::Unit::TestCase
     reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
     report = Nokogiri::HTML(reporter.report)
 
-    assert_equal "Branch", report.css("th[1]").text
-    assert_equal "Tests", report.css("th[2]").text
-    assert_equal "Passed", report.css("th[3]").text
-    assert_equal "Failures", report.css("th[4]").text
-    assert_equal "Errors", report.css("th[5]").text
-    assert_equal "Passing %", report.css("th[6]").text
+    report.css("#test_table").select do |table|
+      assert_equal "Branch", table.css("th[1]").text
+      assert_equal "Tests", table.css("th[2]").text
+      assert_equal "Passed", table.css("th[3]").text
+      assert_equal "Failures", table.css("th[4]").text
+      assert_equal "Errors", table.css("th[5]").text
+      assert_equal "Passing %", table.css("th[6]").text
 
-    assert_equal "Result 1", report.css("tr[1] td[1]").text
-    assert_equal "3", report.css("tr[1] td[2]").text
-    assert_equal "2", report.css("tr[1] td[3]").text
-    assert_equal "5", report.css("tr[1] td[4]").text
-    assert_equal "7", report.css("tr[1] td[5]").text
-    assert_equal "66.67", report.css("tr[1] td[6]").text
+      assert_equal "Result 1", table.css("tr[1] td[1]").text
+      assert_equal "3", table.css("tr[1] td[2]").text
+      assert_equal "2", table.css("tr[1] td[3]").text
+      assert_equal "5", table.css("tr[1] td[4]").text
+      assert_equal "7", table.css("tr[1] td[5]").text
+      assert_equal "66.67", table.css("tr[1] td[6]").text
 
-    assert_equal "Result 2", report.css("tr[2] td[1]").text
-    assert_equal "11", report.css("tr[2] td[2]").text
-    assert_equal "13", report.css("tr[2] td[3]").text
-    assert_equal "17", report.css("tr[2] td[4]").text
-    assert_equal "19", report.css("tr[2] td[5]").text
-    assert_equal "118.18", report.css("tr[2] td[6]").text
+      assert_equal "Result 2", table.css("tr[2] td[1]").text
+      assert_equal "11", table.css("tr[2] td[2]").text
+      assert_equal "13", table.css("tr[2] td[3]").text
+      assert_equal "17", table.css("tr[2] td[4]").text
+      assert_equal "19", table.css("tr[2] td[5]").text
+      assert_equal "118.18", table.css("tr[2] td[6]").text
+    end
 
     assert !reporter.deprecation_warnings_changed?
   end
@@ -50,22 +52,24 @@ class TestResult < MiniTest::Unit::TestCase
     result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", deprecations: deprecations2)
 
     reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
-    report = Nokogiri::HTML(reporter.deprecation_report)
+    report = Nokogiri::HTML(reporter.report)
 
-    assert_equal "Deprecation", report.css("th[1]").text
-    assert_equal "Result 1", report.css("th[2]").text
-    assert_equal "Result 2", report.css("th[3]").text
-    assert_equal "Difference", report.css("th[4]").text
+    report.css("#deprecation_table").select do |table|
+      assert_equal "Deprecation", table.css("th[1]").text
+      assert_equal "Result 1", table.css("th[2]").text
+      assert_equal "Result 2", table.css("th[3]").text
+      assert_equal "Difference", table.css("th[4]").text
 
-    assert_equal "A warning", report.css("tr[1] td[1]").text
-    assert_equal "1", report.css("tr[1] td[2]").text
-    assert_equal "2", report.css("tr[1] td[3]").text
-    assert_equal "1", report.css("tr[1] td[4]").text
+      assert_equal "A warning", table.css("tr[1] td[1]").text
+      assert_equal "1", table.css("tr[1] td[2]").text
+      assert_equal "2", table.css("tr[1] td[3]").text
+      assert_equal "1", table.css("tr[1] td[4]").text
 
-    assert_equal "Another warning", report.css("tr[2] td[1]").text
-    assert_equal "9", report.css("tr[2] td[2]").text
-    assert_equal "0", report.css("tr[2] td[3]").text
-    assert_equal "-9", report.css("tr[2] td[4]").text
+      assert_equal "Another warning", table.css("tr[2] td[1]").text
+      assert_equal "9", table.css("tr[2] td[2]").text
+      assert_equal "0", table.css("tr[2] td[3]").text
+      assert_equal "-9", table.css("tr[2] td[4]").text
+    end
 
     assert reporter.deprecation_warnings_changed?
   end
@@ -77,9 +81,9 @@ class TestResult < MiniTest::Unit::TestCase
     result2 = UpgradeAnalyzer::JobResult.new("1234.2", description: "Result 2", deprecations: deprecations2)
 
     reporter = UpgradeAnalyzer::ResultReporter.new(result1, result2)
-    report = Nokogiri::HTML(reporter.deprecation_report)
+    report = Nokogiri::HTML(reporter.report)
 
-    assert_equal "12 deprecation(s) found on both builds.", report.css("td[colspan]").text
+    assert_includes report.css("td[colspan]").text, "12 deprecation(s) found on both builds."
     assert !reporter.deprecation_warnings_changed?
   end
 end

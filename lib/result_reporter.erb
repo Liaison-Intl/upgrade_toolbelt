@@ -1,0 +1,56 @@
+<strong>Test report</strong>"
+
+<table id="test_table">
+  <thead>
+    <th>Branch</th>
+    <th>Tests</th>
+    <th>Passed</th>
+    <th>Failures</th>
+    <th>Errors</th>
+    <th>Passing %</th>
+  </thead>
+  <tbody>
+    <% all_results.each do |result| %>
+      <tr>
+        <td><%= result.description %></td>
+        <td><%= result.tests %></td>
+        <td><%= result.passed %></td>
+        <td><%= result.failures %></td>
+        <td><%= result.errors %></td>
+        <td><%= result.passing_percent %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<strong>Deprecation report</strong>
+
+<table id="deprecation_table">
+  <thead>
+    <th>Deprecation</th>
+    <th><%= result1.description %></th>
+    <th><%= result2.description %></th>
+    <th>Difference</th>
+  </thead>
+  <tbody>
+    <% all_deprecation_categories.each do |category| %>
+      <% difference = deprecations2[category] - deprecations1[category] %>
+      <% if difference != 0 %>
+        <% @deprecation_warnings_changed = true %>
+        <tr>
+          <td><%= category %></td>
+          <td><%= deprecations1[category] %></td>
+          <td><%= deprecations2[category] %></td>
+          <td><%= difference %></td>
+        </tr>
+      <% end %>
+    <% end %>
+    <% if !deprecation_warnings_changed? %>
+      <tr>
+        <td colspan="4">
+          <%= "#{result1.deprecation_count} deprecation(s) found on both builds." %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
