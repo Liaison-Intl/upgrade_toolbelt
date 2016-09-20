@@ -23,13 +23,18 @@ GEM
     json (2.0.2)
     launchy (2.4.3)
       addressable (~> 2.3)
+    mini_portile2 (2.1.0)
     minitest (5.9.0)
     multi_json (1.12.1)
     multipart-post (2.0.0)
     net-http-persistent (2.9.4)
     net-http-pipeline (1.0.1)
+    nokogiri (1.6.8)
+      mini_portile2 (~> 2.1.0)
+      pkg-config (~> 1.1.7)
     octokit (4.3.0)
       sawyer (~> 0.7.0, >= 0.5.3)
+    pkg-config (1.1.7)
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
@@ -57,6 +62,7 @@ DEPENDENCIES
   builder
   byebug
   minitest
+  nokogiri (~> 1.6.8)
   octokit
   rake (~> 10.5.0)
   travis
