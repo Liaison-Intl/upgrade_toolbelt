@@ -97,14 +97,14 @@ module UpgradeAnalyzer
     end
 
     def add_deprecation_report_header(table)
-      headers = ["Deprecation", "Result 1", "Result 2", "Difference"]
+      headers = ["Deprecation", result1.description, result2.description, "Difference"]
       add_headers(table, headers)
     end
 
     def add_headers(table, headers)
       table.thead do |thead|
         headers.each do |column|
-          thead.th(column)
+          thead << "<th>#{column}</th>\n"
         end
       end
     end
