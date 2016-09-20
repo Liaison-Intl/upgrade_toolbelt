@@ -13,4 +13,10 @@ spec:
       - name: upgrade-analyzer
         image: gcr.io/wa-qa-1087/ci:v5
         imagePullPolicy: Always
-        command: [ "/opt/ci/bin/upgrade_analyzer", "--listen", "--repo=Liaison-Intl/WebAdMIT", "--token=YOUR_GITHUB_TOKEN" ]
+        command: [ "/opt/ci/bin/upgrade_analyzer", "--listen", "--repo=Liaison-Intl/WebAdMIT", "--token=$(GITHUB_TOKEN)" ]
+        env:
+          - name: GITHUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: upgrade-analyzer-secrets
+                key: github-token
