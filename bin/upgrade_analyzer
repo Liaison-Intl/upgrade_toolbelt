@@ -113,9 +113,8 @@ module UpgradeAnalyzer
       end
 
       comment = StringIO.new
-      comment << "# Upgrade Build Results\n"
+      comment << "<h1>Upgrade Build Results</h1>"
 
-      any_failing = false
       overall_base_result = JobResult.new("Overall", description: base_branch(build))
       overall_feature_result = JobResult.new("Overall", description: "current")
 
@@ -125,38 +124,20 @@ module UpgradeAnalyzer
         overall_base_result << base_result
         overall_feature_result << result
 
-        this_failing = false
-
-        if result.passing_percent < base_result.passing_percent
-          any_failing = true
-          this_failing = true
-        end
-
-        mark = this_failing ? ":x:" : ":white_check_mark:"
         reporter = ResultReporter.new(base_result, result)
 
         if reporter.deprecation_warnings_changed?
           github.add_labels_to_an_issue([UPGRADE_WARNING])
         end
 
-        comment << "<details>"
-        comment << "\n<summary><strong>Job: #{result.job_number} #{mark}</strong></summary>\n\n"
-        comment << "<p>"
         comment << reporter.report
-        comment << "</p></details><br />"
       end
 
-      overall_failing = (any_failing || overall_feature_result.passing_percent < overall_base_result.passing_percent)
-      mark = overall_failing ? ":x:" : ":white_check_mark:"
       overall_reporter = ResultReporter.new(overall_base_result, overall_feature_result)
 
-      comment << "<details>"
-      comment << "\n<summary><strong>Overall #{mark}</strong></summary>\n\n"
-      comment << "<p>"
       comment << overall_reporter.report
-      comment << "</p></details>"
 
-      if overall_failing
+      if overall_reporter.failed?
         github.add_labels_to_an_issue([UPGRADE_REJECTED])
       else
         github.add_labels_to_an_issue([UPGRADE_ACCEPTED])
