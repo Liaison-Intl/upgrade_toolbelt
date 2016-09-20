@@ -100,21 +100,41 @@ module UpgradeAnalyzer
       puts "Reporting Results"
       github = GithubProxy.new(repo_name, build.pull_request_number, github_token)
 
-      github.remove_label(UPGRADE_ACCEPTED)
-      github.remove_label(UPGRADE_REJECTED)
-      github.remove_label(UPGRADE_REBASE)
+      remove_labels(github)
 
-      if results.length != base_results.length
-        error_message = "Cannot be compared to base branch. Manual comparison is necessary."
-        puts error_message
-        github.add_comment("Upgrade Status: #{error_message}")
-        github.add_labels_to_an_issue([UPGRADE_REBASE])
-        return
+      if comparison_is_valid?(results, base_results)
+        reports = get_reports(build, results, base_results)
+        add_comment_and_labels(reports, github)
+      else
+        report_invalid_comparison(github)
       end
+    end
 
+    def add_comment_and_labels(reports, github)
       comment = StringIO.new
       comment << "<h1>Upgrade Build Results</h1>"
 
+      reports.each do |report|
+        comment << report.report
+      end
+
+      overall = reports.last
+
+      if overall.deprecation_warnings_changed?
+        github.add_labels_to_an_issue([UPGRADE_WARNING])
+      end
+
+      if overall.failed?
+        github.add_labels_to_an_issue([UPGRADE_REJECTED])
+      else
+        github.add_labels_to_an_issue([UPGRADE_ACCEPTED])
+      end
+
+      github.add_comment(comment.string)
+    end
+
+    def get_reports(build, results, base_results)
+      reports = []
       overall_base_result = JobResult.new("Overall", description: base_branch(build))
       overall_feature_result = JobResult.new("Overall", description: "current")
 
@@ -124,26 +144,26 @@ module UpgradeAnalyzer
         overall_base_result << base_result
         overall_feature_result << result
 
-        reporter = ResultReporter.new(base_result, result)
-
-        if reporter.deprecation_warnings_changed?
-          github.add_labels_to_an_issue([UPGRADE_WARNING])
-        end
-
-        comment << reporter.report
+        reports << ResultReporter.new(base_result, result)
       end
+      reports << ResultReporter.new(overall_base_result, overall_feature_result)
+    end
 
-      overall_reporter = ResultReporter.new(overall_base_result, overall_feature_result)
+    def remove_labels(github)
+      github.remove_label(UPGRADE_ACCEPTED)
+      github.remove_label(UPGRADE_REJECTED)
+      github.remove_label(UPGRADE_REBASE)
+    end
 
-      comment << overall_reporter.report
+    def comparison_is_valid?(results, base_results)
+      results.length == base_results.length
+    end
 
-      if overall_reporter.failed?
-        github.add_labels_to_an_issue([UPGRADE_REJECTED])
-      else
-        github.add_labels_to_an_issue([UPGRADE_ACCEPTED])
-      end
-
-      github.add_comment(comment.string)
+    def report_invalid_comparison(github)
+      error_message = "Cannot be compared to base branch. Manual comparison is necessary."
+      puts error_message
+      github.add_comment("Upgrade Status: #{error_message}")
+      github.add_labels_to_an_issue([UPGRADE_REBASE])
     end
 
     def analyze_job(job, name)
