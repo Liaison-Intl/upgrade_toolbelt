@@ -81,7 +81,31 @@ Install Docker and look at the Docker instructions.
 
 Get Docker for Mac and look at the Docker instructions.
 
-### Docker
+## development on the upgrade-analyzer
+
+### Use docker compose
+echo GITHUB_TOKEN=YOUR_GITHUB_TOKEN > kv.conf
+echo REPO=NAME_OF_REPO >> kv.conf
+docker-compose up
+# ^^ Use the CI container as a runtime with your local directory mounted
+#    inside the container so that the code in this directory is used live.
+#    allow to develop in the exact same env in which the code will run.
+
+### other usefull docker-compose command
+docker-compose run ci sh      # overide startup of app container
+                              # to run sh interactivelly.
+docker-compose run ci bundle exec rails c
+
+docker-compose ps             # see listing of all the containers running
+                              # and there status
+
+docker-compose down           # Stop all container
+
+docker-compose build          # Trigger a build of all container
+                              # to be used each time you modify Dockerfile
+docker-compose up --build     # ... idem, also trigger a 'up' action
+
+### Docker for the upgrade_toolbelt
 
     host$ docker build -t upgrade_toolbelt .
     host$ docker run --rm --env 'UTB_OWNER_AND_REPO=benjaminoakes/maid' --env 'UTB_JOB_COUNT=11' -v "$PWD:/opt" -v "$HOME/var/ci":/var/ci -i -t upgrade_toolbelt sh -l

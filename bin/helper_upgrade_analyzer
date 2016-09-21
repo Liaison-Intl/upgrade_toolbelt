@@ -1,0 +1,2 @@
+#!/bin/sh
+/opt/ci/bin/upgrade_analyzer --listen --repo=${REPO} --token=${GITHUB_TOKEN}
