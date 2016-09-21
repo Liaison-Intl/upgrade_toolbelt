@@ -21,3 +21,10 @@ spec:
               secretKeyRef:
                 name: upgrade-analyzer-secrets
                 key: github-token
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "300M"
+          requests:
+            cpu: "0.25"
+            memory: "200M"
