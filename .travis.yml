@@ -1,3 +1,24 @@
+sudo: required
 language: ruby
 rvm:
   - 2.3.1
+services:
+  - docker
+
+script:
+  - CD/deploy.sh
+  - true
+
+deploy:
+  provider: script
+  script: CD/deploy.sh
+  on:
+    branch: master
+    repo: Liaison-Intl/upgrade_toolbelt
+
+# Notice that failure happening in after_script or after_success doesn't fail
+# the build which make it problematic to implement continuous deployment purely
+# within .travis.yml. Thus the usage of the deploy script above.
+#
+# https://github.com/travis-ci/travis-ci/issues/758
+# https://docs.travis-ci.com/user/customizing-the-build
