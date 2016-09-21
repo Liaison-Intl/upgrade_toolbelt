@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  ci:
+    build:
+      context: .
+      dockerfile: Dockerfile.upgrade_analyzer
+    command: /opt/ci/bin/helper_upgrade_analyzer
+    env_file:
+      - ./kv.conf
+    volumes:
+      - .:/opt/ci
+
