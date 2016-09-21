@@ -26,7 +26,6 @@ gcloud docker push gcr.io/<google-project>/ci:<build-number>
 ### Point to GKE cluster
 gcloud container clusters get-credentials <GKE-cluster-name> \
     --zone <google-cloud-zone> --project <google-project>
-kubectl proxy
 
 ### Create and store the secret on GKE -- only need to be done once
 kubectl create secret generic upgrade-analyzer-secrets --from-literal=github-token=YOUR_GITHUB_TOKEN
@@ -60,6 +59,10 @@ kubectl run -i --tty test --image=gcr.io/<google-project>/ci:<build-number> -- s
 kubectl delete deployment NAME_OF_DEPLOYMENT
 kubectl describe secret/upgrade-analyzer-secrets
 kubectl get secret upgrade-analyzer-secrets -o yaml  # secrets show as base64
+kubectl config view
+kubectl proxy
+kubectl cluster-info # see URI for kubernetes-dashboard
+# ^^  See your google cloud console for the credential of the GKE cluster
 
 ### External Documentation
 
@@ -68,8 +71,20 @@ https://cloud.google.com/container-engine/docs/quickstart
 https://github.com/travis-ci/travis.rb#table-of-contents
 http://octokit.github.io/octokit.rb/Octokit.html
 http://kubernetes.io/docs/user-guide/secrets/
+http://kubernetes.io/docs/
 https://developers.google.com/console/help/new/#serviceaccounts
 https://cloud.google.com/container-registry/docs/advanced-authentication
+https://docs.travis-ci.com/user/customizing-the-build
+https://docs.travis-ci.com/user/deployment/script/
+
+### Alternate way to authenticate to GKE/GCR 
+# ( for CI integration purpose where gcloud sdk is not available )
+docker login -u _json_key -p="${GCE_JSON_KEY}" https://gcr.io
+docker push gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER}
+kubectl config set-credentials default --username=${GKE_USERNAME} --password=${GKE_PASSWORD}
+kubectl config set-cluster default --server=http://${GKE_SERVER} --insecure-skip-tls-verify=true
+kubectl config set-context default --cluster=default --user=default
+kubectl config use-context default
 
 ## Developer setup
 
