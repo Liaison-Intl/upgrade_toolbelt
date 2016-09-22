@@ -34,8 +34,7 @@ module UpgradeAnalyzer
     end
 
     def listen
-      puts "Initializing build listener"
-
+      p "Initializing build listener"
       login
 
       Travis::Pro.listen(repo) do |stream|
@@ -54,8 +53,11 @@ module UpgradeAnalyzer
 
     def fetch_option(option_name)
       options.fetch(option_name) do
-        puts "Missing option: #{option_name} ('upgrade_analyzer --help' for help)"
-        exit 1
+        p "Missing option: #{option_name} ('upgrade_analyzer --help' for help)"
+        ret_val = ENV[option_name.to_s.upcase]
+        exit(1) if ret_val.nil?
+        p "Found env var: '#{option_name.to_s.upcase}', using it..."
+        ret_val
       end
     end
 
@@ -65,15 +67,15 @@ module UpgradeAnalyzer
 
     def check_build(build)
       unless build.pull_request?
-        puts "Build #{build.number} is not a pull request. Skipping."
+        p "Build #{build.number} is not a pull request. Skipping."
         return
       end
 
       repo.session.clear_cache
 
-      puts "Analyzing PR: #{build.pull_request_number}"
+      p "Analyzing PR: #{build.pull_request_number}"
       results = analyze_build(build, "current")
-      puts "Getting results for base branch"
+      p "Getting results for base branch"
       base = base_branch(build)
       base_results = analyze_build(last_complete_build(base), base)
       report_results(build, results, base_results)
@@ -97,7 +99,7 @@ module UpgradeAnalyzer
     end
 
     def report_results(build, results, base_results)
-      puts "Reporting Results"
+      p "Reporting Results"
       github = GithubProxy.new(repo_name, build.pull_request_number, github_token)
 
       remove_labels(github)
@@ -161,13 +163,13 @@ module UpgradeAnalyzer
 
     def report_invalid_comparison(github)
       error_message = "Cannot be compared to base branch. Manual comparison is necessary."
-      puts error_message
+      p error_message
       github.add_comment("Upgrade Status: #{error_message}")
       github.add_labels_to_an_issue([UPGRADE_REBASE])
     end
 
     def analyze_job(job, name)
-      puts "Analyzing job: #{job.number}"
+      p "Analyzing job: #{job.number}"
       link = "<a href='https://travis-ci.com/#{repo_name}/jobs/#{job.id})'>#{name}</a>"
       body = job.log.clean_body
       match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
