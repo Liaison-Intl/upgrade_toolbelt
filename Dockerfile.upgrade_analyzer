@@ -10,14 +10,13 @@ RUN apk add --no-cache \
     libxml2-dev=2.9.4-r0 \
     libxslt-dev=1.1.29-r0
 
-
 RUN update-ca-certificates
 
 RUN echo 'gem: --no-rdoc --no-ri' >> /etc/gemrc && \
     gem install \
-    bundler \
-    rdoc \
-    io-console
+    bundler:1.13.1 \
+    rdoc:4.2.2 \
+    io-console:0.4.6
 
 COPY Gemfile Gemfile
 COPY Gemfile.lock Gemfile.lock

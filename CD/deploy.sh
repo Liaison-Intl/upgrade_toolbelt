@@ -13,10 +13,10 @@ gcloud --version
 
 ### Authenticate to gcloud
 export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gce.json # ENV var used by kubectl
-set +x
+set +x # Prevent exposure of GCE_JSON_KEY in travis output
   echo ${GCE_JSON_KEY} > $GOOGLE_APPLICATION_CREDENTIALS
 set -x
-gcloud auth activate-service-account --key-file /tmp/gce.json
+gcloud auth activate-service-account --key-file ${GOOGLE_APPLICATION_CREDENTIALS}
 
 ### Build and push container to GCR registry
 docker build -t gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} -f Dockerfile.upgrade_analyzer .
