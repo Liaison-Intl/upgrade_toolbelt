@@ -72,7 +72,7 @@ At this point travis is configured for continuous deployment
 Each new build of branch 'master' triggers a deploy to google
 container engine ( aka GKE ).
 
-See .travis.xml and CD/deploy.sh
+See .travis.xml and travis/continuous_deployment
 
 ### Install gcloud SDK
 https://cloud.google.com/sdk/docs/quickstart-mac-os-x
