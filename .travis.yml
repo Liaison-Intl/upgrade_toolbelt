@@ -6,12 +6,17 @@ services:
   - docker
 
 script:
-  - CD/deploy.sh
   - true
+  - travis/continuous_deployment
+
+# the call to 'travis/continuous_deployment' above is temporary.  It
+# aim at testing continuous_deployment from within a PR.  It's needed since
+# Travis doesn't allow to run a 'deploy:' action from a PR. ( or I didn't find
+# how to )
 
 deploy:
   provider: script
-  script: CD/deploy.sh
+  script: travis/continuous_deployment
   on:
     branch: master
     repo: Liaison-Intl/upgrade_toolbelt
