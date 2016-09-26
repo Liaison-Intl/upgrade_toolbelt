@@ -14,6 +14,18 @@ Utilities to help upgrading a ~250K line Rails app.
 
 Runs a process that watches for Travis builds to finish and inspects the results to ensure it doesn't make the Rails 4 build worse.
 
+## User
+
+### Quickly try upgrade_analyzer
+
+An automated build of that project was setup on hub.docker.com to allow easy trial of the upgrade_analyzer.  
+If you desire benefit from that option, you can do so by running the following locally :
+```
+docker run liaisonintl/upgrade_toolbelt /opt/ci/bin/upgrade_analyzer --listen --token=YOUR_GITHUB_TOKEN --repo=REPO
+```
+Then proceed opening or pushing to an existing PR in your REPO  
+The upgrade_analyzer will comment on the PR using the GITHUB_TOKEN you provided
+
 ## Developer setup
 
 ### Linux
