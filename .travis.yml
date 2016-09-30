@@ -1,25 +1,24 @@
 sudo: required
-language: ruby
-rvm:
-  - 2.3.1
 services:
   - docker
 
-script:
-  - true
-  - travis/continuous_deployment
+### Skip the default install steps
+install: true
 
-# the call to 'travis/continuous_deployment' above is temporary.  It
-# aim at testing continuous_deployment from within a PR.  It's needed since
-# Travis doesn't allow to run a 'deploy:' action from a PR. ( or I didn't find
-# how to )
+before_script:
+  - docker build -t gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} -f Dockerfile.upgrade_analyzer .
+
+script:
+  - docker run gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} bundle exec rake
 
 deploy:
   provider: script
   script: travis/continuous_deployment
   on:
-    branch: master
-    repo: Liaison-Intl/upgrade_toolbelt
+    branch:
+      - master
+      - feature/containertest
+      - feature/NF-8840
 
 # Notice that failure happening in after_script or after_success doesn't fail
 # the build which make it problematic to implement continuous deployment purely

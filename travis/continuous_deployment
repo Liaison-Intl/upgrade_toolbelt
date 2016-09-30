@@ -18,8 +18,7 @@ set +x # Prevent exposure of GCE_JSON_KEY in travis output
 set -x
 gcloud auth activate-service-account --key-file ${GOOGLE_APPLICATION_CREDENTIALS}
 
-### Build and push container to GCR registry
-docker build -t gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} -f Dockerfile.upgrade_analyzer .
+### Push container to GCR registry
 gcloud docker push gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER}
 
 ### Fetch GKE credential
