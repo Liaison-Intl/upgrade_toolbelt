@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: upgrade-analyzer-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: upgrade-analyzer
+    spec:
+      containers:
+      - name: upgrade-analyzer
+        image: gcr.io/__GOOGLE_PROJECT__/ci:__BUILD_NUMBER__
+        imagePullPolicy: Always
+        command:
+          [ "/opt/ci/bin/upgrade_analyzer", "--listen", "--repo=__REPO_NAME__", "--token=$(GITHUB_TOKEN)" ]
+        env:
+          - name: GITHUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: upgrade-analyzer-secrets
+                key: github-token
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "300M"
+          requests:
+            cpu: "0.25"
+            memory: "200M"
