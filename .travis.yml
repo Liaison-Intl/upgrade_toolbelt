@@ -1,0 +1,28 @@
+sudo: required
+services:
+  - docker
+
+### Skip the default install steps
+install: true
+
+before_script:
+  - docker build -t gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} -f Dockerfile.upgrade_analyzer .
+
+script:
+  - docker run gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} bundle exec rake
+
+deploy:
+  provider: script
+  script: travis/continuous_deployment
+  on:
+    branch:
+      - master
+      - feature/containertest
+      - feature/NF-8840
+
+# Notice that failure happening in after_script or after_success doesn't fail
+# the build which make it problematic to implement continuous deployment purely
+# within .travis.yml. Thus the usage of the deploy script above.
+#
+# https://github.com/travis-ci/travis-ci/issues/758
+# https://docs.travis-ci.com/user/customizing-the-build

@@ -1,0 +1,63 @@
+<details>
+  <summary>
+    <strong>Job: <%= pull_request_result.job_number %> <%= mark %></strong><br />
+  </summary>
+  <p>
+
+  <br /><strong>Test report</strong><br />
+
+  <table id="test_table">
+    <thead>
+      <th>Branch</th>
+      <th>Tests</th>
+      <th>Passed</th>
+      <th>Failures</th>
+      <th>Errors</th>
+      <th>Passing %</th>
+    </thead>
+    <tbody>
+      <% all_results.each do |result| %>
+        <tr>
+          <td><%= result.description %></td>
+          <td><%= result.tests %></td>
+          <td><%= result.passed %></td>
+          <td><%= result.failures %></td>
+          <td><%= result.errors %></td>
+          <td><%= result.passing_percent %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <strong>Deprecation report</strong><br /><br />
+
+  <table id="deprecation_table">
+    <thead>
+      <th>Deprecation</th>
+      <th><%= base_result.description %></th>
+      <th><%= pull_request_result.description %></th>
+      <th>Difference</th>
+    </thead>
+    <tbody>
+      <% all_deprecation_categories.each do |category| %>
+        <% changed = difference_for_category(category) %>
+        <% if changed != 0 %>
+          <tr>
+            <td><%= category %></td>
+            <td><%= base_deprecations[category] %></td>
+            <td><%= pull_request_deprecations[category] %></td>
+            <td><%= changed %></td>
+          </tr>
+        <% end %>
+      <% end %>
+      <% if !deprecation_warnings_changed? %>
+        <tr>
+          <td colspan="4">
+            <%= "#{base_result.deprecation_count} deprecation(s) found on both builds." %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  </p>
+</details>
