@@ -163,12 +163,12 @@ module UpgradeAnalyzer
     end
 
     def validate_comparison(results, base_results)
-        base_ids = base_results.map(&:job_number).sort
-        new_ids = results.map(&:job_number).sort
-      if new_ids != base_ids
+      if results.length != base_results.length
+        base_ids = base_results.map(&:job_number).sort.join(", ")
+        new_ids = results.map(&:job_number).sort.join(", ")
         errors << "The Base jobs do not match the jobs in the pull request."
-        errors << "Base jobs: #{base_ids.join(', ')}"
-        errors << "PR jobs:" + "&nbsp;" * 5 + new_ids.join(', ')
+        errors << "Base jobs: #{base_ids}"
+        errors << "PR jobs:" + "&nbsp;" * 5 + new_ids
       end
     end
 
