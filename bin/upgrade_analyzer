@@ -10,11 +10,14 @@ module UpgradeAnalyzer
     UPGRADE_REBASE = "[Upgrade] CI Needed (rebase base branch)"
     UPGRADE_WARNING = "[Upgrade] Check Deprecation Warnings"
 
+    attr_accessor :errors
+
     def initialize(options)
       @options = options
       @github_token = fetch_option(:github_token)
       @listen_mode = options[:listen]
       @repo_name = fetch_option(:repo)
+      @errors = []
     end
 
     def run
@@ -104,11 +107,13 @@ module UpgradeAnalyzer
 
       remove_labels(github)
 
-      if comparison_is_valid?(results, base_results)
+      validate_comparison(results, base_results)
+
+      if errors.any?
+        report_invalid_comparison(github)
+      else
         reports = get_reports(build, results, base_results)
         add_comment_and_labels(reports, github)
-      else
-        report_invalid_comparison(github)
       end
     end
 
@@ -157,14 +162,18 @@ module UpgradeAnalyzer
       github.remove_label(UPGRADE_REBASE)
     end
 
-    def comparison_is_valid?(results, base_results)
-      results.length == base_results.length
+    def validate_comparison(results, base_results)
+      if results.length != base_results.length
+        base_ids = base_results.map(&:job_number).sort.join(", ")
+        new_ids = results.map(&:job_number).sort.join(", ")
+        errors << "The Base jobs do not match the jobs in the pull request."
+        errors << "Base jobs: #{base_ids}"
+        errors << "PR jobs:" + "&nbsp;" * 5 + new_ids
+      end
     end
 
     def report_invalid_comparison(github)
-      error_message = "Cannot be compared to base branch. Manual comparison is necessary."
-      p error_message
-      github.add_comment("Upgrade Status: #{error_message}")
+      github.add_comment("Upgrade Status: #{errors.join("<br />")}")
       github.add_labels_to_an_issue([UPGRADE_REBASE])
     end
 
