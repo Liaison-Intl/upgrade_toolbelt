@@ -39,7 +39,7 @@ Install Docker and look at the Docker instructions.
 Get Docker for Mac and look at the Docker instructions.
 * https://docs.docker.com/docker-for-mac/
 
-## development on the upgrade-analyzer
+## Development on the upgrade-analyzer
 
 ### What you will need
   ```
@@ -63,7 +63,7 @@ Get Docker for Mac and look at the Docker instructions.
   $ docker-compose up -d          # same as 'up' but run in the background
   ```
 
-### other usefull docker-compose command
+### Other usefull docker-compose command
   ```
   $ docker-compose run ci sh      # overide startup of app container
                                   # to run sh interactivelly.
