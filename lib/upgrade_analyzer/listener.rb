@@ -1,3 +1,5 @@
+require_relative "../travis_connection"
+
 module UpgradeAnalyzer
   class Listener
 
@@ -8,9 +10,10 @@ module UpgradeAnalyzer
 
     def initialize(options)
       @options = options
-      @github_token = fetch_option(:github_token)
-      @listen_mode = options[:listen]
       @repo_name = fetch_option(:repo)
+      @github_token = fetch_option(:github_token)
+      @travis = TravisConnection.new(@github_token, @repo_name)
+      @listen_mode = options[:listen]
     end
 
     def run
@@ -23,7 +26,7 @@ module UpgradeAnalyzer
 
     private
 
-    attr_reader :build_number, :github_token, :options, :repo_name
+    attr_reader :build_number, :repo_name, :github_token
 
     def listen_mode?
       @listen_mode
@@ -31,24 +34,19 @@ module UpgradeAnalyzer
 
     def listen
       p "Initializing build listener"
-      login
 
-      Travis::Pro.listen(repo) do |stream|
-        stream.on("build:finished") do |event|
-          check_build(event.build)
-        end
+      @travis.listen do |event|
+        check_build(event.build)
       end
     end
 
     def run_one(build_number)
-      login
-
-      build = repo.build(build_number)
+      build = @travis.repo.build(build_number)
       check_build(build)
     end
 
     def fetch_option(option_name)
-      options.fetch(option_name) do
+      @options.fetch(option_name) do
         p "Missing option: #{option_name} ('upgrade_analyzer --help' for help)"
         ret_val = ENV[option_name.to_s.upcase]
         exit(1) if ret_val.nil?
@@ -57,34 +55,20 @@ module UpgradeAnalyzer
       end
     end
 
-    def login
-      Travis::Pro.github_auth(github_token)
-    end
-
     def check_build(build)
       unless build.pull_request?
         p "Build #{build.number} is not a pull request. Skipping."
         return
       end
 
-      repo.session.clear_cache
+      @travis.clear_session
 
       p "Analyzing PR: #{build.pull_request_number}"
       results = analyze_build(build, "current")
       p "Getting results for base branch"
-      base = base_branch(build)
-      base_results = analyze_build(last_complete_build(base), base)
+      base = @travis.base_branch(build)
+      base_results = analyze_build(@travis.last_complete_build(base), base)
       report_results(build, results, base_results)
-    end
-
-    def base_branch(build)
-      build.branch_info.match(/\A[^\s]*/).to_s
-    end
-
-    def last_complete_build(base)
-      repo.builds.detect do |build|
-        base_branch(build) == base && build.finished? && !build.pull_request?
-      end
     end
 
     def analyze_build(build, name)
@@ -139,7 +123,7 @@ module UpgradeAnalyzer
 
     def get_reports(build, results, base_results)
       reports = []
-      overall_base_result = JobResult.new("Overall", description: base_branch(build))
+      overall_base_result = JobResult.new("Overall", description: @travis.base_branch(build))
       overall_feature_result = JobResult.new("Overall", description: "current")
 
       results.each_with_index do |result, index|
@@ -191,10 +175,6 @@ module UpgradeAnalyzer
                     failures: match[:failures],
                     errors: match[:errors],
                     deprecations: summary.deprecations)
-    end
-
-    def repo
-      @repo ||= Travis::Pro::Repository.find(repo_name)
     end
   end
 end
