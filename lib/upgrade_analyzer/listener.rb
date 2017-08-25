@@ -105,8 +105,12 @@ module UpgradeAnalyzer
       if errors.any?
         report_invalid_comparison(github, errors)
       else
-        reports = get_reports(build, results, base_results)
-        add_comment_and_labels(reports, github)
+        if results.any?
+          reports = get_reports(build, results, base_results)
+          add_comment_and_labels(reports, github)
+        else
+          github.add_labels_to_an_issue([UPGRADE_ACCEPTED])
+        end
       end
     end
 
