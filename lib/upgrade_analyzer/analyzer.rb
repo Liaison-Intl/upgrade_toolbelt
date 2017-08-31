@@ -1,75 +1,36 @@
 require_relative "../travis_connection"
 
 module UpgradeAnalyzer
-  class Listener
+  class Analyzer
 
     UPGRADE_ACCEPTED = "[Upgrade] Accepted"
     UPGRADE_REJECTED = "[Upgrade] Rejected"
     UPGRADE_REBASE = "[Upgrade] CI Needed (rebase base branch)"
     UPGRADE_WARNING = "[Upgrade] Check Deprecation Warnings"
 
-    def initialize(options)
-      @options = options
-      @repo_name = fetch_option(:repo)
-      @github_token = fetch_option(:github_token)
-      @travis = TravisConnection.new(@github_token, @repo_name)
-      @listen_mode = options[:listen]
-    end
-
-    def run
-      if listen_mode?
-        listen
-      else
-        run_one(fetch_option(:build))
-      end
-    end
-
-    private
-
-    attr_reader :build_number, :repo_name, :github_token
-
-    def listen_mode?
-      @listen_mode
-    end
-
-    def listen
-      p "Initializing build listener"
-
-      @travis.listen do |event|
-        check_build(event.build)
-      end
-    end
-
-    def run_one(build_number)
-      build = @travis.repo.build(build_number)
-      check_build(build)
-    end
-
-    def fetch_option(option_name)
-      @options.fetch(option_name) do
-        p "Missing option: #{option_name} ('upgrade_analyzer --help' for help)"
-        ret_val = ENV[option_name.to_s.upcase]
-        exit(1) if ret_val.nil?
-        p "Found env var: '#{option_name.to_s.upcase}', using it..."
-        ret_val
-      end
+    def initialize(travis, repo_name, github_token)
+      @github_token = github_token
+      @repo_name = repo_name
+      @travis = travis
     end
 
     def check_build(build)
       unless build.pull_request?
-        p "Build #{build.number} is not a pull request. Skipping."
+        log "Build #{build.number} is not a pull request. Skipping."
         return
       end
 
       @travis.clear_session
 
-      p "Analyzing PR: #{build.pull_request_number}"
+      log "Analyzing PR: #{build.pull_request_number}"
       results = analyze_build(build, "current")
-      p "Getting results for base branch"
+      log "Getting results for base branch"
       base = @travis.base_branch(build)
       base_results = analyze_build(@travis.last_complete_build(base), base)
       report_results(build, results, base_results)
     end
+
+    private
 
     def analyze_build(build, name)
       build.jobs.map do |job|
@@ -78,9 +39,26 @@ module UpgradeAnalyzer
       end.compact
     end
 
+    def analyze_job(job, name)
+      log "Analyzing job: #{job.number}"
+      link = "<a href='#{@travis.job_url(job.id)}'>#{name}</a>"
+      body = job.log.clean_body
+      match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
+      return unless match
+
+      summary = DeprecationSummary.new(StringIO.new(body).readlines)
+      JobResult.new(job.number,
+                    description: link,
+                    tests: match[:tests],
+                    passed: match[:passed],
+                    failures: match[:failures],
+                    errors: match[:errors],
+                    deprecations: summary.deprecations)
+    end
+
     def report_results(build, results, base_results)
-      p "Reporting Results"
-      github = GithubProxy.new(repo_name, build.pull_request_number, github_token)
+      log "Reporting Results"
+      github = GithubProxy.new(@repo_name, build.pull_request_number, @github_token)
 
       remove_labels(github)
 
@@ -160,21 +138,8 @@ module UpgradeAnalyzer
       github.add_labels_to_an_issue([UPGRADE_REBASE])
     end
 
-    def analyze_job(job, name)
-      p "Analyzing job: #{job.number}"
-      link = "<a href='https://travis-ci.com/#{repo_name}/jobs/#{job.id})'>#{name}</a>"
-      body = job.log.clean_body
-      match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
-      return unless match
-
-      summary = DeprecationSummary.new(StringIO.new(body).readlines)
-      JobResult.new(job.number,
-                    description: link,
-                    tests: match[:tests],
-                    passed: match[:passed],
-                    failures: match[:failures],
-                    errors: match[:errors],
-                    deprecations: summary.deprecations)
+    def log(msg)
+      puts msg
     end
   end
 end

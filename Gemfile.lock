@@ -23,8 +23,11 @@ GEM
     json (2.0.2)
     launchy (2.4.3)
       addressable (~> 2.3)
+    metaclass (0.0.4)
     mini_portile2 (2.1.0)
     minitest (5.9.0)
+    mocha (1.3.0)
+      metaclass (~> 0.0.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
     net-http-persistent (2.9.4)
@@ -62,6 +65,7 @@ DEPENDENCIES
   builder
   byebug
   minitest
+  mocha
   nokogiri (~> 1.6.8)
   octokit
   rake (~> 10.5.0)
