@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require_relative "../lib/upgrade_analyzer"
+require_relative "../lib/log_analyzer"
 
 class TravisAnalyzer
   def initialize(options)
@@ -11,6 +12,7 @@ class TravisAnalyzer
     @listen_mode = options[:listen]
 
     @upgrade_analyzer = UpgradeAnalyzer::Analyzer.new(@travis, repo_name, github_token)
+    @log_analyzer = LogAnalyzer::Analyzer.new(@travis, repo_name, github_token)
   end
 
   def run
@@ -25,6 +27,7 @@ class TravisAnalyzer
 
   def analyze_build(build)
     @upgrade_analyzer.check_build(build)
+    @log_analyzer.check_build(build)
   end
 
   def listen_mode?
