@@ -58,7 +58,7 @@ module UpgradeAnalyzer
 
     def report_results(build, results, base_results)
       log "Reporting Results"
-      github = GithubProxy.new(@repo_name, build.pull_request_number, @github_token)
+      github = ::GithubProxy.new(@repo_name, build.pull_request_number, @github_token)
 
       remove_labels(github)
 

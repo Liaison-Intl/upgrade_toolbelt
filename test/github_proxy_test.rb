@@ -1,9 +1,9 @@
 require "test_helper"
 
-class TestGithubProxy < MiniTest::Unit::TestCase
+class GithubProxyTest < MiniTest::Unit::TestCase
 
   def test_add_comment
-    github = UpgradeAnalyzer::GithubProxy.new("repo", "pr1", "token")
+    github = GithubProxy.new("repo", "pr1", "token")
     octomock = MiniTest::Mock.new
 
     octomock.expect(:add_comment, nil, ["repo", "pr1", "comment"])
@@ -15,7 +15,7 @@ class TestGithubProxy < MiniTest::Unit::TestCase
   end
 
   def test_add_labels_to_an_issue
-    github = UpgradeAnalyzer::GithubProxy.new("repo", "pr1", "token")
+    github = GithubProxy.new("repo", "pr1", "token")
     octomock = MiniTest::Mock.new
 
     octomock.expect(:add_labels_to_an_issue, nil, ["repo", "pr1", ["label"]])
@@ -27,7 +27,7 @@ class TestGithubProxy < MiniTest::Unit::TestCase
   end
 
   def test_remove_label
-    github = UpgradeAnalyzer::GithubProxy.new("repo", "pr1", "token")
+    github = GithubProxy.new("repo", "pr1", "token")
     octomock = MiniTest::Mock.new
 
     octomock.expect(:remove_label, nil, ["repo", "pr1", "label"])

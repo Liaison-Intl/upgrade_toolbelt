@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../lib/deprecation_summary"
 
-class TestDeprecationSummary < MiniTest::Unit::TestCase
+class DeprecationSummaryTest < MiniTest::Unit::TestCase
   def test_no_deprecation
     content = ["None here"]
     summary = DeprecationSummary.new(content)

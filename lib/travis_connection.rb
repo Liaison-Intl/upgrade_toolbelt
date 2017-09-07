@@ -1,3 +1,5 @@
+require "travis"
+
 class TravisConnection
   def initialize(github_token, repo_name)
     @github_token = github_token
@@ -19,10 +21,6 @@ class TravisConnection
 
   def last_complete_build(base)
     repo.builds.detect do |build|
-      # puts "\e[32m" + "base_branch(build)=#{(base_branch(build)).inspect}" + "\e[39m"
-      # puts "\e[32m" + "build.finished?=#{(build.finished?).inspect}" + "\e[39m"
-      # puts "\e[32m" + "build.pull_request?=#{(build.pull_request?).inspect}" + "\e[39m"
-
       base_branch(build) == base && build.finished? && !build.pull_request?
     end
   end
