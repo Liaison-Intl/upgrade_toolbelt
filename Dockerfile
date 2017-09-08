@@ -4,7 +4,7 @@ RUN echo 'apk update && apk add "$1"' > /usr/local/bin/pkg-apk
 RUN echo 'gem install --no-ri --no-rdoc "$1"' > /usr/local/bin/pkg-gem
 RUN chmod +x /usr/local/bin/pkg-*
 
-RUN echo 'export PATH="/opt/bin:$PATH"' > /etc/profile.d/upgrade_toolbelt.sh
+RUN echo 'export PATH="/opt/bin:$PATH"' > /etc/profile.d/travis_toolbelt.sh
 
 RUN pkg-apk ca-certificates
 RUN update-ca-certificates

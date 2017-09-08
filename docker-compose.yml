@@ -4,8 +4,8 @@ services:
   ci:
     build:
       context: .
-      dockerfile: Dockerfile.upgrade_analyzer
-    command: /opt/ci/bin/upgrade_analyzer --listen
+      dockerfile: Dockerfile.travis_analyzer
+    command: /opt/ci/bin/travis_analyzer --listen
     env_file:
       - ./kv.conf
     volumes:

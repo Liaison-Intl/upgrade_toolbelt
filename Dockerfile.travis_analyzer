@@ -35,4 +35,4 @@ RUN bundle install
 
 COPY . /opt/ci
 
-CMD /opt/ci/bin/upgrade_analyzer
+CMD /opt/ci/bin/travis_analyzer

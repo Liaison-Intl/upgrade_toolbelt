@@ -49,7 +49,7 @@ class TravisAnalyzer
 
   def fetch_option(option_name)
     @options.fetch(option_name) do
-      puts "Missing option: #{option_name} ('upgrade_analyzer --help' for help)"
+      puts "Missing option: #{option_name} ('travis_analyzer --help' for help)"
       ret_val = ENV[option_name.to_s.upcase]
       exit(1) if ret_val.nil?
       puts "Found env var: '#{option_name.to_s.upcase}', using it..."
