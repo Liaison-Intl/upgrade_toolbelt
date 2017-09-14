@@ -1,14 +1,13 @@
 FROM alpine:3.4
 
-RUN apk add --no-cache \
-    ruby=2.3.1-r0 \
-    ruby-dev=2.3.1-r0 \
-    build-base=0.4-r1 \
-    libffi-dev=3.2.1-r2 \
-    ruby-irb=2.3.1-r0 \
-    ca-certificates=20160104-r4 \
-    libxml2-dev=2.9.4-r0 \
-    libxslt-dev=1.1.29-r0
+RUN apk add --no-cache ruby=2.3.5-r0
+RUN apk add --no-cache ruby-dev=2.3.5-r0
+RUN apk add --no-cache build-base=0.4-r1
+RUN apk add --no-cache libffi-dev=3.2.1-r2
+RUN apk add --no-cache ruby-irb=2.3.5-r0
+RUN apk add --no-cache ca-certificates=20161130-r0
+RUN apk add --no-cache libxml2-dev=2.9.4-r3
+RUN apk add --no-cache libxslt-dev=1.1.29-r1
 
 RUN update-ca-certificates
 
@@ -27,7 +26,7 @@ ENV BUNDLE_PATH=${GEM_HOME} \
     PATH=${GEM_HOME}/bin:${PATH}
 
 RUN gem install \
-    bundler:1.13.1 \
+    bundler:1.15.4 \
     io-console:0.4.6
 
 COPY Gemfile Gemfile
