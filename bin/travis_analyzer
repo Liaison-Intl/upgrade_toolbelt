@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/upgrade_analyzer"
+require_relative "../lib/log_analyzer"
+
+class TravisAnalyzer
+  def initialize(options)
+    @options = options
+    repo_name = fetch_option(:repo)
+    github_token = fetch_option(:github_token)
+    @travis = TravisConnection.new(github_token, repo_name)
+    @listen_mode = options[:listen]
+
+    @upgrade_analyzer = UpgradeAnalyzer::Analyzer.new(@travis, repo_name, github_token)
+    @log_analyzer = LogAnalyzer::Analyzer.new(@travis, repo_name, github_token)
+  end
+
+  def run
+    if listen_mode?
+      listen
+    else
+      run_one(fetch_option(:build))
+    end
+  end
+
+  private
+
+  def analyze_build(build)
+    @upgrade_analyzer.check_build(build)
+    @log_analyzer.check_build(build)
+  end
+
+  def listen_mode?
+    @listen_mode
+  end
+
+  def listen
+    puts "Initializing build listener"
+
+    @travis.listen do |event|
+      analyze_build(event.build)
+    end
+  end
+
+  def run_one(build_number)
+    build = @travis.repo.build(build_number)
+    analyze_build(build)
+  end
+
+  def fetch_option(option_name)
+    @options.fetch(option_name) do
+      puts "Missing option: #{option_name} ('travis_analyzer --help' for help)"
+      ret_val = ENV[option_name.to_s.upcase]
+      exit(1) if ret_val.nil?
+      puts "Found env var: '#{option_name.to_s.upcase}', using it..."
+      ret_val
+    end
+  end
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.on("-b[BUILD_NUMBER]", "--build[=BUILD_NUMBER]", "The Travis build number to analyze. Ignored in listen mode.") do |build_number|
+    options[:build] = build_number
+  end
+  opts.on("-l", "--listen", "Listen for builds to complete, analyzing PR's as their builds finish") do |repo|
+    options[:listen] = repo
+  end
+  opts.on("-rREPOSITORY_NAME", "--repo=REPOSITORY_NAME", "GitHub repository to use. Include organization/user name and repo name") do |repo|
+    options[:repo] = repo
+  end
+  opts.on("-t[GITHUB_TOKEN]", "--token[=GITHUB_TOKEN]", "Your personal GitHub token") do |github_token|
+    options[:github_token] = github_token
+  end
+end.parse!
+
+TravisAnalyzer.new(options).run

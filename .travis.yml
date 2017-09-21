@@ -6,7 +6,7 @@ services:
 install: true
 
 before_script:
-  - docker build -t gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} -f Dockerfile.upgrade_analyzer .
+  - docker build -t gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} -f Dockerfile.travis_analyzer .
 
 script:
   - docker run gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} bundle exec rake

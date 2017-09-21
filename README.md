@@ -16,17 +16,17 @@ Runs a process that watches for Travis builds to finish and inspects the results
 
 ## User
 
-### Quickly try upgrade_analyzer
+### Quickly try travis_analyzer
 
-An automated build of that project was setup on hub.docker.com to allow easy trial of the upgrade_analyzer.
+An automated build of that project was setup on hub.docker.com to allow easy trial of the travis_analyzer.
 If you desire benefit from that option, you can do so by running the following locally :
   ```
   $ docker run liaisonintl/upgrade_toolbelt \
-      /opt/ci/bin/upgrade_analyzer \
+      /opt/ci/bin/travis_analyzer \
       --listen --token=YOUR_GITHUB_TOKEN --repo=REPO
   ```
 Then proceed opening or pushing to an existing PR in your REPO
-The upgrade_analyzer will comment on the PR using the GITHUB_TOKEN you provided
+The travis_analyzer will comment on the PR using the GITHUB_TOKEN you provided
 
 ## Developer setup
 
@@ -113,7 +113,7 @@ and use 'kubectl set' to create that config.
 
 ### Build the container and assign it a tag containing a unique build-number
   ```
-  $ docker build -t gcr.io/<google-project>/ci:<build-number> -f Dockerfile.upgrade_analyzer.
+  $ docker build -t gcr.io/<google-project>/ci:<build-number> -f Dockerfile.travis_analyzer.
   ```
 
 ### Push your local container to GCE so it can be consumed by Kubernetes
@@ -159,7 +159,7 @@ and use 'kubectl set' to create that config.
   $ kubectl delete deployment upgrade-analyzer-deployment
   $ kubectl run upgrade-analyzer-deployment \
       --image=gcr.io/<google-project>/ci:<build-number> --command \
-      -- /opt/ci/bin/upgrade_analyzer --listen --repo=REPO --token=GITHUB_TOKEN
+      -- /opt/ci/bin/travis_analyzer --listen --repo=REPO --token=GITHUB_TOKEN
   ```
 
 ### Useful kubernetes commands

@@ -14,7 +14,7 @@ spec:
         image: gcr.io/__GOOGLE_PROJECT__/ci:__BUILD_NUMBER__
         imagePullPolicy: Always
         command:
-          [ "/opt/ci/bin/upgrade_analyzer", "--listen", "--repo=__REPO_NAME__", "--token=$(GITHUB_TOKEN)" ]
+          [ "/opt/ci/bin/travis_analyzer", "--listen", "--repo=__REPO_NAME__", "--token=$(GITHUB_TOKEN)" ]
         env:
           - name: GITHUB_TOKEN
             valueFrom:
