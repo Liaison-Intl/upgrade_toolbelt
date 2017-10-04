@@ -1,4 +1,11 @@
+require "stringio"
+
 require_relative "../travis_connection"
+require_relative "../deprecation_summary"
+require_relative "../github_proxy"
+require_relative "job_result"
+require_relative "result_reporter"
+
 
 module UpgradeAnalyzer
   class Analyzer

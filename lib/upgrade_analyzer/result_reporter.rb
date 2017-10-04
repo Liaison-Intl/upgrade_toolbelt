@@ -1,5 +1,4 @@
 require "erb"
-require "stringio"
 
 module UpgradeAnalyzer
   class ResultReporter

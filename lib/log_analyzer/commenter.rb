@@ -1,5 +1,4 @@
 require "erb"
-require "stringio"
 
 module LogAnalyzer
   class Commenter

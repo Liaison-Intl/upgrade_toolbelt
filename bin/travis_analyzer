@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 
-require_relative "../lib/upgrade_analyzer"
-require_relative "../lib/log_analyzer"
+require "optparse"
+require "travis"
+
+require_relative "../lib/upgrade_analyzer/analyzer"
+require_relative "../lib/log_analyzer/analyzer"
 
 class TravisAnalyzer
   def initialize(options)
