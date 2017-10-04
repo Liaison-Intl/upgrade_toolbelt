@@ -10,3 +10,4 @@ gem "nokogiri", "~> 1.6.8"
 
 gem "mocha"
 gem "minitest"
+gem "pry"
