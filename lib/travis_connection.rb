@@ -33,6 +33,10 @@ class TravisConnection
     @repo ||= Travis::Pro::Repository.find(@repo_name)
   end
 
+  def build_url(build_id)
+    "https://travis-ci.com/#{@repo_name}/builds/#{build_id}"
+  end
+
   def job_url(job_id)
     "https://travis-ci.com/#{@repo_name}/jobs/#{job_id}"
   end

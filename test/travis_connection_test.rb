@@ -62,6 +62,10 @@ class TravisConnectionTest < Minitest::Test
     assert_equal mock_repo, @tc.repo
   end
 
+  def test_build_url
+    assert_equal "https://travis-ci.com/REPO/builds/42", @tc.build_url(42)
+  end
+
   def test_job_url
     assert_equal "https://travis-ci.com/REPO/jobs/42", @tc.job_url(42)
   end
