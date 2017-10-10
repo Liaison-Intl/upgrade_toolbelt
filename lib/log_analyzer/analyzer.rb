@@ -40,7 +40,7 @@ module LogAnalyzer
     end
 
     def log(msg)
-      puts msg
+      puts "LogAnalyzer: #{msg}"
     end
   end
 end

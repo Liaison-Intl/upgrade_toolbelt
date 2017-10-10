@@ -146,7 +146,7 @@ module UpgradeAnalyzer
     end
 
     def log(msg)
-      puts msg
+      puts "UpgradeAnalyzer: #{msg}"
     end
   end
 end
