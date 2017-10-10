@@ -1,3 +1,15 @@
+## Notice that this file isn't updated during continuous deployment
+## travis will only update the images tag in the 'deployment' object
+## stored in the cluster.
+##
+## This file is stored here for reference only.  If you need to update the
+## object in the cluster use the following.
+##
+## gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} \
+##   --project ${GCE_PROJECT} --zone ${GCE_ZONE}
+## kubectl edit deployment upgrade-analyzer-deployment
+##
+
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
