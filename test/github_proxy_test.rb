@@ -1,6 +1,6 @@
 require "test_helper"
 
-class GithubProxyTest < MiniTest::Unit::TestCase
+class GithubProxyTest < Minitest::Test
 
   def test_add_comment
     github = GithubProxy.new("repo", "pr1", "token")

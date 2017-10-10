@@ -1,6 +1,6 @@
 require "test_helper"
 
-class TravisConnectionTest < MiniTest::Unit::TestCase
+class TravisConnectionTest < Minitest::Test
   def setup
     Travis::Pro.expects(:github_auth).with("TOKEN")
     @tc = TravisConnection.new("TOKEN", "REPO")

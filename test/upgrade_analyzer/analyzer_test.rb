@@ -1,7 +1,7 @@
 require "test_helper"
 
 module UpgradeAnalyzer
-  class AnalyzerTest < MiniTest::Unit::TestCase
+  class AnalyzerTest < Minitest::Test
     def setup
       last_build = mock('last_build')
       last_build.stubs(:jobs).returns([])

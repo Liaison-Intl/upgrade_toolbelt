@@ -1,7 +1,7 @@
 require "test_helper"
 
 module LogAnalyzer
-  class AnalyzerTest < MiniTest::Unit::TestCase
+  class AnalyzerTest < Minitest::Test
     def setup
       travis = mock('travis')
       travis.stubs(:clear_session)
