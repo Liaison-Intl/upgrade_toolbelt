@@ -37,4 +37,81 @@ class GithubProxyTest < Minitest::Test
       octomock.verify
     end
   end
+
+  def test_contents
+    github = GithubProxy.new("repo", "pr1", "token")
+    octomock = MiniTest::Mock.new
+
+    octomock.expect(:contents, "CONTENT", ["repo", { path: "path", branch: "heads/branch" }])
+
+    github.stub(:client, octomock) do
+      assert_equal "CONTENT", github.contents("path", "branch")
+      octomock.verify
+    end
+  end
+
+  def test_file_last_update_at
+    github = GithubProxy.new("repo", "pr1", "token")
+    octomock = MiniTest::Mock.new
+
+    commits = [
+      {
+        commit: {
+          committer: {
+            date: "SOME_DATE"
+          }
+        }
+      }
+    ]
+    octomock.expect(:commits, commits, ["repo", "branch", { path: "path" }])
+
+    github.stub(:client, octomock) do
+      assert_equal "SOME_DATE", github.file_last_update_at("path", "branch")
+      octomock.verify
+    end
+  end
+
+  def test_create_commit
+    github = GithubProxy.new("repo", "pr1", "token")
+    octomock = MiniTest::Mock.new
+
+    ref_mock = mock(object: mock(sha: "SHA_LATEST_COMMIT"))
+    octomock.expect(:ref, ref_mock, ["repo", "heads/branch"])
+
+    commit_mock = mock(commit: mock(tree: mock(sha: "SHA_BASE_TREE")))
+    octomock.expect(:commit, commit_mock, ["repo", "SHA_LATEST_COMMIT"])
+
+    octomock.expect(:create_blob, "BLOB_SHA", ["repo", Base64.encode64("content"), "base64"])
+
+    tree_mock = mock(sha: "SHA_NEW_TREE")
+    tree_info =                                         {
+      :path => "filename",
+      :mode => "100644",
+      :type => "blob",
+      :sha => "BLOB_SHA"
+    }
+    octomock.expect(:create_tree, tree_mock, ["repo", [tree_info], { base_tree: "SHA_BASE_TREE" }])
+
+    commit_mock = mock(sha: "SHA_NEW_COMMIT")
+    octomock.expect(:create_commit, commit_mock, ["repo", "message", "SHA_NEW_TREE", "SHA_LATEST_COMMIT"])
+
+    octomock.expect(:update_ref, nil, ["repo", "heads/branch", "SHA_NEW_COMMIT"])
+
+    github.stub(:client, octomock) do
+      github.create_commit("message", "filename", "content", "branch")
+      octomock.verify
+    end
+  end
+
+  def test_create_pull_request
+    github = GithubProxy.new("repo", "pr1", "token")
+    octomock = MiniTest::Mock.new
+
+    octomock.expect(:create_pull_request, nil, ["repo", "branch1", "branch2", "title", "body"])
+
+    github.stub(:client, octomock) do
+      github.create_pull_request("branch1", "branch2", "title", "body")
+      octomock.verify
+    end
+  end
 end
