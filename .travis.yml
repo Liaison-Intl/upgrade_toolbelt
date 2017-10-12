@@ -1,11 +1,18 @@
+rvm:
+  - ruby-2.3.5-p0
+
 sudo: required
 services:
   - docker
 
-### Skip the default install steps
-install: true
+before_install:
+  - gem install bundler -v 1.15.4
+
+install:
+  - bundle install --without development --path=${BUNDLE_PATH:-vendor/bundle}
 
 before_script:
+  - bundle exec rake test
   - docker build -t gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER} -f Dockerfile.travis_analyzer .
 
 script:
