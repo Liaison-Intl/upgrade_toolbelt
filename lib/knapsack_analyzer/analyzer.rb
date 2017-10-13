@@ -79,8 +79,12 @@ EOF
 
       file_content = JSON.pretty_generate(reordered_timing_hash)
       commit_message = "Updates #{@knapsack_file_path} from Travis build #{build.number}"
-      github.create_commit(commit_message, @knapsack_file_path, file_content, @knapsack_branch)
-      github.create_pull_request("master", @knapsack_branch, commit_message, report)
+      begin
+        github.create_commit(commit_message, @knapsack_file_path, file_content, @knapsack_branch)
+        github.create_pull_request("master", @knapsack_branch, commit_message, report)
+      rescue Octokit::UnprocessableEntity => e
+        log(e.message)
+      end
     end
 
     def analyze_job(job)
@@ -109,7 +113,7 @@ EOF
     end
 
     def knapsack_out_of_date?
-      two_weeks_ago = Time.now - 1209600
+      two_weeks_ago = Time.now - 1209600 # 14 days in seconds
       last_update = github.file_last_update_at(@knapsack_file_path, "heads/#{@knapsack_branch}")
       if last_update > two_weeks_ago
         log("#{@knapsack_file_path} was last updated on #{last_update.localtime}. Skipping.")
