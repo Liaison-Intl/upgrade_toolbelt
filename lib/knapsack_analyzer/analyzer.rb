@@ -11,6 +11,13 @@ module KnapsackAnalyzer
       @travis = travis
       @knapsack_branch = "feature/knapsack_minitest_report-update"
       @knapsack_file_path = "knapsack_minitest_report.json"
+
+      @ruby_regexp = /Running (Ruby .*)/
+      @rails_regexp = /Running (Rails .*)/
+      @knapsack_start = /^Knapsack report was generated/
+      @knapsack_end = /^Knapsack global time execution for tests/
+
+      @knapsack_rails_match = /Rails 3.1/
     end
 
     def check_build(build)
@@ -91,21 +98,23 @@ EOF
       raw_json_text = nil
       body = job.log.clean_body
       body.split("\n").each do |line|
-        if line.match(/^Knapsack global time execution for tests/)
-          break
+        if m = line.match(@rails_regexp)
+          unless m[1].match(@knapsack_rails_match)
+            return {}
+          end
+        end
+
+        if raw_json_text and line.match(@knapsack_end)
+          return JSON.parse(raw_json_text.join)
         end
         if raw_json_text
           raw_json_text << line
-        end
-        if line.match(/^Knapsack report was generated/)
+        elsif line.match(@knapsack_start)
           raw_json_text = []
         end
       end
-      if raw_json_text.nil?
-        {}
-      else
-        JSON.parse(raw_json_text.join)
-      end
+
+      {}
     end
 
     def github
