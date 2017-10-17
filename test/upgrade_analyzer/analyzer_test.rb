@@ -12,12 +12,15 @@ module UpgradeAnalyzer
       travis.stubs(:last_complete_build).returns(last_build)
       travis.stubs(:job_url).returns("URL")
 
+      @logger = mock('logger')
+
       @analyzer = Analyzer.new(travis, "REPO", "TOKEN")
+      @analyzer.stubs(:logger).returns(@logger)
     end
 
     def test_build_is_not_pr
       build = mock('build', pull_request?: false, number: 42)
-      @analyzer.expects(:log).with("Build 42 is not a pull request. Skipping.")
+      @logger.expects(:warn).with("Build 42 is not a pull request. Skipping.")
       @analyzer.check_build(build)
     end
 
@@ -27,8 +30,8 @@ module UpgradeAnalyzer
       build = mock('build', pull_request?: true, jobs: [job])
       build.stubs(:pull_request_number).returns(4242)
 
-      @analyzer.expects(:log).with("Analyzing PR: 4242")
-      @analyzer.expects(:log).with("Getting results for base branch")
+      @logger.expects(:info).with("Analyzing PR: 4242")
+      @logger.expects(:info).with("Getting results for base branch")
       @analyzer.expects(:report_results)
       @analyzer.check_build(build)
     end
@@ -49,10 +52,10 @@ module UpgradeAnalyzer
       github.expects(:add_labels_to_an_issue).with(["[Upgrade] CI Needed (rebase base branch)"])
       GithubProxy.stubs(:new).returns(github)
 
-      @analyzer.expects(:log).with("Analyzing PR: 4242")
-      @analyzer.expects(:log).with("Getting results for base branch")
-      @analyzer.expects(:log).with("Analyzing job: 42")
-      @analyzer.expects(:log).with("Reporting Results")
+      @logger.expects(:info).with("Analyzing PR: 4242")
+      @logger.expects(:info).with("Getting results for base branch")
+      @logger.expects(:info).with("Analyzing job: 42")
+      @logger.expects(:info).with("Reporting Results")
       @analyzer.expects(:validate_comparison).returns([:errors])
       @analyzer.check_build(build)
     end
@@ -66,9 +69,9 @@ module UpgradeAnalyzer
       github.expects(:add_labels_to_an_issue).with(["[Upgrade] Accepted"])
       GithubProxy.stubs(:new).returns(github)
 
-      @analyzer.expects(:log).with("Analyzing PR: 4242")
-      @analyzer.expects(:log).with("Getting results for base branch")
-      @analyzer.expects(:log).with("Reporting Results")
+      @logger.expects(:info).with("Analyzing PR: 4242")
+      @logger.expects(:info).with("Getting results for base branch")
+      @logger.expects(:info).with("Reporting Results")
       @analyzer.check_build(build)
     end
 
@@ -103,9 +106,9 @@ module UpgradeAnalyzer
 
       @analyzer.expects(:analyze_build).returns([result])
       @analyzer.expects(:analyze_build).returns([base_result])
-      @analyzer.expects(:log).with("Analyzing PR: 4242")
-      @analyzer.expects(:log).with("Getting results for base branch")
-      @analyzer.expects(:log).with("Reporting Results")
+      @logger.expects(:info).with("Analyzing PR: 4242")
+      @logger.expects(:info).with("Getting results for base branch")
+      @logger.expects(:info).with("Reporting Results")
       @analyzer.expects(:validate_comparison).returns([])
       @analyzer.check_build(build)
     end

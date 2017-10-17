@@ -1,14 +1,14 @@
 require "base64"
 require 'json'
+
+require_relative "../base_analyzer"
 require_relative "../travis_connection"
 
 module KnapsackAnalyzer
-  class Analyzer
+  class Analyzer < ::BaseAnalyzer
 
     def initialize(travis, repo_name, github_token)
-      @github_token = github_token
-      @repo_name = repo_name
-      @travis = travis
+      super(travis, repo_name, github_token)
       @knapsack_branch = "feature/knapsack_minitest_report-update"
       @knapsack_file_path = "knapsack_minitest_report.json"
 
@@ -22,12 +22,12 @@ module KnapsackAnalyzer
 
     def check_build(build)
       unless build.passed?
-        log "Build #{build.number} did not pass. Skipping."
+        logger.warn "Build #{build.number} did not pass. Skipping."
         return
       end
 
       if master_branch?(build) and knapsack_out_of_date?
-        log "Let's update knapsack!"
+        logger.info "Let's update knapsack!"
 
         previous_timings = fetch_current_timings
 
@@ -90,7 +90,7 @@ EOF
         github.create_commit(commit_message, @knapsack_file_path, file_content, @knapsack_branch)
         github.create_pull_request("master", @knapsack_branch, commit_message, report)
       rescue Octokit::UnprocessableEntity => e
-        log(e.message)
+        logger.error(e.message)
       end
     end
 
@@ -125,7 +125,7 @@ EOF
       two_weeks_ago = Time.now - 1209600 # 14 days in seconds
       last_update = github.file_last_update_at(@knapsack_file_path, "heads/#{@knapsack_branch}")
       if last_update > two_weeks_ago
-        log("#{@knapsack_file_path} was last updated on #{last_update.localtime}. Skipping.")
+        logger.warn("#{@knapsack_file_path} was last updated on #{last_update.localtime}. Skipping.")
         false
       else
         true
@@ -137,12 +137,8 @@ EOF
       if base == "master"
         true
       else
-        log("Build branch is #{base}. Skipping.")
+        logger.warn("Build branch is #{base}. Skipping.")
       end
-    end
-
-    def log(msg)
-      puts "KnapsackAnalyzer: #{msg}"
     end
   end
 end

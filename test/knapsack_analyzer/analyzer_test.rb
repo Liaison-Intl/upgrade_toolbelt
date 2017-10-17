@@ -5,15 +5,17 @@ module KnapsackAnalyzer
     def setup
       @travis = mock('travis')
       @github = mock('github')
+      @logger = mock('logger')
 
       @analyzer = Analyzer.new(@travis, "REPO", "TOKEN")
       @analyzer.stubs(:github).returns(@github)
+      @analyzer.stubs(:logger).returns(@logger)
     end
 
     def test_build_failed
       build = mock('build', passed?: false, number: 42)
 
-      @analyzer.expects(:log).with("Build 42 did not pass. Skipping.")
+      @logger.expects(:warn).with("Build 42 did not pass. Skipping.")
       @analyzer.check_build(build)
     end
 
@@ -21,7 +23,7 @@ module KnapsackAnalyzer
       build = mock('build', passed?: true)
       @travis.expects(:base_branch).returns("base")
 
-      @analyzer.expects(:log).with("Build branch is base. Skipping.")
+      @logger.expects(:warn).with("Build branch is base. Skipping.")
       @analyzer.check_build(build)
     end
 
@@ -31,7 +33,7 @@ module KnapsackAnalyzer
       last_update = Time.now - 5
       @github.expects(:file_last_update_at).returns(last_update)
 
-      @analyzer.expects(:log).with("knapsack_minitest_report.json was last updated on #{last_update}. Skipping.")
+      @logger.expects(:warn).with("knapsack_minitest_report.json was last updated on #{last_update}. Skipping.")
       @analyzer.check_build(build)
     end
 
@@ -55,7 +57,7 @@ END
 
       @github.expects(:file_last_update_at).returns(Time.new(2000,1,1))
 
-      @analyzer.expects(:log).with("Let's update knapsack!")
+      @logger.expects(:info).with("Let's update knapsack!")
       @analyzer.expects(:fetch_current_timings)
       @analyzer.expects(:generate_report).with(nil, { 'test1' => 10, 'test2' => 5 }, build)
       @analyzer.expects(:publish)
@@ -77,7 +79,7 @@ END
       @travis.expects(:base_branch).returns("master")
       @github.expects(:file_last_update_at).returns(Time.new(2000,1,1))
 
-      @analyzer.expects(:log).with("Let's update knapsack!")
+      @logger.expects(:info).with("Let's update knapsack!")
       @analyzer.expects(:fetch_current_timings)
       @analyzer.expects(:generate_report).with(nil, {}, build)
       @analyzer.expects(:publish)
@@ -103,7 +105,7 @@ END
       }
 
       @analyzer.expects(:analyze_job).returns(extracted_timings)
-      @analyzer.expects(:log).with("Let's update knapsack!")
+      @logger.expects(:info).with("Let's update knapsack!")
       @analyzer.expects(:fetch_current_timings).returns(previous_timings)
 
       report = <<END
@@ -146,7 +148,7 @@ END
       )
 
       @analyzer.expects(:analyze_job).returns(extracted_timings)
-      @analyzer.expects(:log).with("Let's update knapsack!")
+      @logger.expects(:info).with("Let's update knapsack!")
       @analyzer.expects(:fetch_current_timings)
       @analyzer.expects(:generate_report).returns("REPORT")
 

@@ -5,14 +5,16 @@ module LogAnalyzer
     def setup
       travis = mock('travis')
       travis.stubs(:clear_session)
+      @logger = mock('logger')
 
       @analyzer = Analyzer.new(travis, "REPO", "TOKEN")
+      @analyzer.stubs(:logger).returns(@logger)
     end
 
     def test_build_is_not_pr
       build = mock('build', pull_request?: false, number: 42)
 
-      @analyzer.expects(:log).with("Build 42 is not a pull request. Skipping.")
+      @logger.expects(:warn).with("Build 42 is not a pull request. Skipping.")
       @analyzer.check_build(build)
     end
 
@@ -21,7 +23,7 @@ module LogAnalyzer
       build = mock('build', pull_request?: true, jobs: [job])
       build.stubs(:pull_request_number).returns(4242)
 
-      @analyzer.expects(:log).with("Analyzing PR's log: 4242")
+      @logger.expects(:info).with("Analyzing PR's log: 4242")
       @analyzer.check_build(build)
     end
 
@@ -35,8 +37,8 @@ module LogAnalyzer
       github.expects(:add_comment).once
       GithubProxy.stubs(:new).returns(github)
 
-      @analyzer.expects(:log).with("Analyzing PR's log: 4242")
-      @analyzer.expects(:log).with("Reporting Results")
+      @logger.expects(:info).with("Analyzing PR's log: 4242")
+      @logger.expects(:info).with("Reporting Results")
       @analyzer.check_build(build)
     end
   end

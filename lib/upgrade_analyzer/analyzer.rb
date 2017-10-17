@@ -1,5 +1,6 @@
 require "stringio"
 
+require_relative "../base_analyzer"
 require_relative "../travis_connection"
 require_relative "../deprecation_summary"
 require_relative "../github_proxy"
@@ -8,30 +9,24 @@ require_relative "result_reporter"
 
 
 module UpgradeAnalyzer
-  class Analyzer
+  class Analyzer < ::BaseAnalyzer
 
     UPGRADE_ACCEPTED = "[Upgrade] Accepted"
     UPGRADE_REJECTED = "[Upgrade] Rejected"
     UPGRADE_REBASE = "[Upgrade] CI Needed (rebase base branch)"
     UPGRADE_WARNING = "[Upgrade] Check Deprecation Warnings"
 
-    def initialize(travis, repo_name, github_token)
-      @github_token = github_token
-      @repo_name = repo_name
-      @travis = travis
-    end
-
     def check_build(build)
       unless build.pull_request?
-        log "Build #{build.number} is not a pull request. Skipping."
+        logger.warn "Build #{build.number} is not a pull request. Skipping."
         return
       end
 
       @travis.clear_session
 
-      log "Analyzing PR: #{build.pull_request_number}"
+      logger.info "Analyzing PR: #{build.pull_request_number}"
       results = analyze_build(build, "current")
-      log "Getting results for base branch"
+      logger.info "Getting results for base branch"
       base = @travis.base_branch(build)
       base_results = analyze_build(@travis.last_complete_build(base), base)
       report_results(build, results, base_results)
@@ -47,7 +42,7 @@ module UpgradeAnalyzer
     end
 
     def analyze_job(job, name)
-      log "Analyzing job: #{job.number}"
+      logger.info "Analyzing job: #{job.number}"
       link = "<a href='#{@travis.job_url(job.id)}'>#{name}</a>"
       body = job.log.clean_body
       match = body.match(/(?<tests>\d+) tests, (?<passed>\d+) passed, (?<failures>\d+) failures, (?<errors>\d+) errors/)
@@ -64,7 +59,7 @@ module UpgradeAnalyzer
     end
 
     def report_results(build, results, base_results)
-      log "Reporting Results"
+      logger.info "Reporting Results"
       github = ::GithubProxy.new(@repo_name, build.pull_request_number, @github_token)
 
       remove_labels(github)
@@ -143,10 +138,6 @@ module UpgradeAnalyzer
     def report_invalid_comparison(github, errors)
       github.add_comment("Upgrade Status: #{errors.join("<br />")}")
       github.add_labels_to_an_issue([UPGRADE_REBASE])
-    end
-
-    def log(msg)
-      puts "UpgradeAnalyzer: #{msg}"
     end
   end
 end
