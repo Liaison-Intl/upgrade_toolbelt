@@ -1,7 +1,7 @@
 require "test_helper"
 
 module UpgradeAnalyzer
-  class JobResultTest < MiniTest::Unit::TestCase
+  class JobResultTest < Minitest::Test
 
     def test_setting_attributes
       result = JobResult.new("jobnum", description: "description", tests: 1, passed: 2, failures: 3, errors: 4)

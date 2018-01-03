@@ -1,6 +1,6 @@
 require "test_helper"
 
-class TravisConnectionTest < MiniTest::Unit::TestCase
+class TravisConnectionTest < Minitest::Test
   def setup
     Travis::Pro.expects(:github_auth).with("TOKEN")
     @tc = TravisConnection.new("TOKEN", "REPO")
@@ -60,6 +60,10 @@ class TravisConnectionTest < MiniTest::Unit::TestCase
     mock_repo = mock()
     Travis::Pro::Repository.expects(:find).with("REPO").returns(mock_repo)
     assert_equal mock_repo, @tc.repo
+  end
+
+  def test_build_url
+    assert_equal "https://travis-ci.com/REPO/builds/42", @tc.build_url(42)
   end
 
   def test_job_url

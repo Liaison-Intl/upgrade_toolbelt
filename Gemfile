@@ -8,5 +8,11 @@ gem "rake", "~> 10.5.0"
 gem "travis"
 gem "nokogiri", "~> 1.6.8"
 
-gem "mocha"
-gem "minitest"
+group :test do
+  gem "mocha"
+  gem "minitest"
+end
+
+group :development, :test do
+  gem "pry"
+end

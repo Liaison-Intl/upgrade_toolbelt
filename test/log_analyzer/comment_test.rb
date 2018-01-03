@@ -2,7 +2,7 @@ require "test_helper"
 require "nokogiri"
 
 module LogAnalyzer
-  class CommenterTest < MiniTest::Unit::TestCase
+  class CommenterTest < Minitest::Test
     def test_comment
       build_mock = mock('build', pull_request_number: 42, number: 4242)
       commenter = Commenter.new(build_mock)

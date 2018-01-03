@@ -2,7 +2,7 @@ require "test_helper"
 require "nokogiri"
 
 module UpgradeAnalyzer
-  class ResultReporterTest < MiniTest::Unit::TestCase
+  class ResultReporterTest < Minitest::Test
     def test_build_results
       result1 = JobResult.new("1234.1", description: "Result 1", tests: 3, passed: 2, failures: 5, errors: 7)
       result2 = JobResult.new("1234.2", description: "Result 2", tests: 11, passed: 13, failures: 17, errors: 19)
