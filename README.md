@@ -228,3 +228,26 @@ You can access the 'logging' by navigating to the cloud.google.com as follow :
     sh -l
   container$ utb-build-analyze 407
   ```
+
+## How to upgrade Ruby version
+
+Open the `Dockerfile.travis_analyzer` file and remove all specific versions set in that file:
+
+```
+RUN apk add --no-cache ruby
+RUN apk add --no-cache ruby-dev
+RUN apk add --no-cache build-base
+RUN apk add --no-cache libffi-dev
+RUN apk add --no-cache ruby-irb
+RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache libxml2-dev
+RUN apk add --no-cache libxslt-dev
+```
+
+Then build a new Docker container:
+```
+docker-compose build
+```
+
+When Docker runs each line above, it will display what version it grabs. Cut and paste each version,
+back into the `Dockerfile.travis_analyzer` file.
