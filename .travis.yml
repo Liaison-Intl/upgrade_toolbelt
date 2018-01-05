@@ -6,7 +6,7 @@ services:
   - docker
 
 before_install:
-  - gem install bundler -v 1.15.4
+  - gem install bundler -v 1.16.1
 
 install:
   - bundle install --without development --path=${BUNDLE_PATH:-vendor/bundle}
