@@ -2,12 +2,13 @@ FROM alpine:3.4
 
 RUN apk add --no-cache ruby=2.3.6-r0
 RUN apk add --no-cache ruby-dev=2.3.6-r0
-RUN apk add --no-cache build-base=0.4-r1
-RUN apk add --no-cache libffi-dev=3.2.1-r2
 RUN apk add --no-cache ruby-irb=2.3.6-r0
-RUN apk add --no-cache ca-certificates=20161130-r0
-RUN apk add --no-cache libxml2-dev=2.9.4-r3
-RUN apk add --no-cache libxslt-dev=1.1.29-r1
+
+RUN apk add --no-cache build-base
+RUN apk add --no-cache libffi-dev
+RUN apk add --no-cache ca-certificates # this should never be version pinned!
+RUN apk add --no-cache libxml2-dev
+RUN apk add --no-cache libxslt-dev
 
 RUN update-ca-certificates
 

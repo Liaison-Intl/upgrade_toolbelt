@@ -9,10 +9,11 @@ RUN echo 'export PATH="/opt/bin:$PATH"' > /etc/profile.d/travis_toolbelt.sh
 RUN pkg-apk ca-certificates
 RUN update-ca-certificates
 
-RUN pkg-apk grep=2.25-r0
 RUN pkg-apk ruby=2.3.6-r0
 RUN pkg-apk ruby-dev=2.3.6-r0
-RUN pkg-apk build-base=0.4-r1
-RUN pkg-apk libffi-dev=3.2.1-r2
+
+RUN pkg-apk grep
+RUN pkg-apk build-base
+RUN pkg-apk libffi-dev
 
 RUN pkg-gem travis:1.8.2
