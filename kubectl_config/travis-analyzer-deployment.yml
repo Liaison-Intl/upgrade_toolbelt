@@ -7,22 +7,22 @@
 ##
 ## gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} \
 ##   --project ${GCE_PROJECT} --zone ${GCE_ZONE}
-## kubectl edit deployment upgrade-analyzer-deployment
+## kubectl edit deployment travis-analyzer
 ##
 
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: upgrade-analyzer-deployment
+  name: travis-analyzer
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: upgrade-analyzer
+        app: travis-analyzer
     spec:
       containers:
-      - name: upgrade-analyzer
+      - name: travis-analyzer
         image: gcr.io/__GOOGLE_PROJECT__/ci:__BUILD_NUMBER__
         imagePullPolicy: Always
         command:
@@ -31,7 +31,7 @@ spec:
           - name: GITHUB_TOKEN
             valueFrom:
               secretKeyRef:
-                name: upgrade-analyzer-secrets
+                name: travis-analyzer-secrets
                 key: github-token
         resources:
           limits:

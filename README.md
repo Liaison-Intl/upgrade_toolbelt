@@ -123,17 +123,17 @@ and use 'kubectl set' to create that config.
 
 ### Create and store the secret on GKE -- initial setup only
   ```
-  $ kubectl create secret generic upgrade-analyzer-secrets --from-literal=github-token=YOUR_GITHUB_TOKEN
+  $ kubectl create secret generic travis-analyzer-secrets -n default --from-literal=github-token=YOUR_GITHUB_TOKEN
   ```
 
 ### Deploy declaratively -- initial setup only
   ```
-  $ kubectl create -f kubectl_config/upgrade-analyzer-deployment.yml
-  $ kubectl edit deployment/upgrade-analyzer-deployment
+  $ kubectl apply -f kubectl_config/travis-analyzer-deployment.yml -n default
+  $ kubectl edit deployment/travis-analyzer -n default
     ^^ replace __REPO_NAME__ with with the repo you want to monitor
        replace __GOOGLE_PROJECT__ with the name of your GCE project name
        replace __BUILD_NUMBER__ with the build-number tagged container you
-                              just pushed
+                                just pushed.
   ```
 
 ### Confirm pods is healthy
