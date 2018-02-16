@@ -5,7 +5,12 @@ set -xeo pipefail
 
 ### Install dependancy
 export CLOUDSDK_CORE_DISABLE_PROMPTS=1
-curl https://sdk.cloud.google.com | bash
+
+# If the SDK is not already cached, download it and unpack it
+if [ ! -d ${HOME}/google-cloud-sdk ]; then
+  curl https://sdk.cloud.google.com | bash || true;
+fi
+
 source /home/travis/.bashrc
 export PATH=/home/travis/google-cloud-sdk/bin:$PATH
 gcloud components update kubectl
