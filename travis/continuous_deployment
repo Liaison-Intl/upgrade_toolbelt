@@ -30,4 +30,4 @@ gcloud docker -- push gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER}
 gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --project ${GCE_PROJECT} --zone ${GCE_ZONE}
 
 ### Update 'deployment' object in GKE which trigger a rollout of the new images
-kubectl set image deployment/travis-analyzer-deployment travis-analyzer=gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER}
+kubectl set image deployment/travis-analyzer travis-analyzer=gcr.io/${GCE_PROJECT}/ci:${TRAVIS_BUILD_NUMBER}
