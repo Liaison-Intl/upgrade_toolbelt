@@ -5,7 +5,7 @@ gem "builder"
 gem "byebug"
 gem "octokit"
 gem "rake", "~> 10.5.0"
-gem "travis"
+gem "travis", "~> 1.8.8"
 gem "nokogiri", "~> 1.6.8"
 
 group :test do
