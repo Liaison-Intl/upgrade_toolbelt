@@ -80,7 +80,9 @@ module BacktraceAnalyzer
 
       @logger.expects(:info).with('Analyzing PR: 4242')
       @logger.expects(:info).with('Reporting Results')
-      github.expects(:add_comment).with("```\nxxxx\n```\n```\nzzzz\n```")
+
+      expected_comment = "<details>\n<summary>2 test(s) need your attention</summary>\n\n```\nxxxx\n```\n```\nzzzz\n```\n</details>\n"
+      github.expects(:add_comment).with(expected_comment)
 
       @analyzer.check_build(build)
     end

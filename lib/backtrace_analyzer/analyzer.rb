@@ -36,15 +36,28 @@ module BacktraceAnalyzer
       return unless failures.any?
 
       logger.info 'Reporting Results'
-      github = ::GithubProxy.new(@repo_name, build.pull_request_number, @github_token)
+      github = GithubProxy.new(@repo_name, build.pull_request_number, @github_token)
 
-      comment = failures.flatten.map do |backtrace|
+      comment = <<-HTML
+<details>
+<summary>#{summary(failures)}</summary>\n
+#{compile_body(failures)}
+</details>
+      HTML
+
+      github.add_comment(comment)
+    end
+
+    def summary(failures)
+      "#{failures.flatten.size} test(s) need your attention"
+    end
+
+    def compile_body(failures)
+      failures.flatten.map do |backtrace|
         trace = backtrace.scan(/^(((?!vendor\/bundle).)*)$/).join
         trace = trace.strip.gsub(/[ ]{2,}/, "").gsub("\r\r", "\r")
         ['```', trace, '```'].join("\n")
       end.join("\n")
-
-      github.add_comment(comment)
     end
   end
 end
