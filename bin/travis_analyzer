@@ -15,9 +15,10 @@ class TravisAnalyzer
     @travis = TravisConnection.new(github_token, repo_name)
     @listen_mode = options[:listen]
 
-    @log_analyzer = LogAnalyzer::Analyzer.new(@travis, repo_name, github_token)
-    @knapsack_analyzer = KnapsackAnalyzer::Analyzer.new(@travis, repo_name, github_token)
-    @backtrace_analyzer = BacktraceAnalyzer::Analyzer.new(@travis, repo_name, github_token)
+    @analyzers = []
+    @analyzers << LogAnalyzer::Analyzer.new(@travis, repo_name, github_token)
+    @analyzers << KnapsackAnalyzer::Analyzer.new(@travis, repo_name, github_token)
+    @analyzers << BacktraceAnalyzer::Analyzer.new(@travis, repo_name, github_token)
   end
 
   def run
@@ -31,9 +32,9 @@ class TravisAnalyzer
   private
 
   def analyze_build(build)
-    @log_analyzer.check_build(build)
-    @knapsack_analyzer.check_build(build)
-    @backtrace_analyzer.check_build(build)
+    @analyzers.each do |analyzer|
+      analyzer.check_build(build)
+    end
   end
 
   def listen_mode?
