@@ -53,9 +53,9 @@ module BacktraceAnalyzer
     end
 
     def compile_body(failures)
-      failures.flatten.map do |backtrace|
-        trace = backtrace.scan(/^(((?!vendor\/bundle).)*)$/).join
+      failures.flatten.map do |trace|
         trace = trace.strip.gsub(/[ ]{2,}/, "").gsub("\r\r", "\r")
+        trace = trace.scan(/^(?!vendor\/bundle).*$/).join
         ['```', trace, '```'].join("\n")
       end.join("\n")
     end
