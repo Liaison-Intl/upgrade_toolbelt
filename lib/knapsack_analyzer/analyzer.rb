@@ -3,6 +3,7 @@ require 'json'
 
 require_relative "../base_analyzer"
 require_relative "../travis_connection"
+require_relative "../github_proxy"
 
 module KnapsackAnalyzer
   class Analyzer < ::BaseAnalyzer

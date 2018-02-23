@@ -1,3 +1,7 @@
+require_relative "../base_analyzer"
+require_relative "../travis_connection"
+require_relative "../github_proxy"
+
 module BacktraceAnalyzer
   class Analyzer < ::BaseAnalyzer
     def check_build(build)
