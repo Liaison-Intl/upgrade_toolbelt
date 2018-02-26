@@ -7,7 +7,6 @@ require_relative "../github_proxy"
 require_relative "job_result"
 require_relative "result_reporter"
 
-
 module UpgradeAnalyzer
   class Analyzer < ::BaseAnalyzer
 

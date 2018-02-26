@@ -1,5 +1,6 @@
 require_relative "../base_analyzer"
 require_relative "../travis_connection"
+require_relative "../github_proxy"
 require_relative "commenter"
 
 module LogAnalyzer

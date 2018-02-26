@@ -48,7 +48,7 @@ module BacktraceAnalyzer
       log_body = <<-BODY
         aaa
         FAILED_TEST:START
-        xxx
+        \e[31mxxx\e[0m
         vendor/bundle/makes/it/so/this/line/is/ignored
         FAILED_TEST:END
         yyy
