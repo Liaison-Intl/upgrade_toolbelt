@@ -1,3 +1,7 @@
+require_relative "../base_analyzer"
+require_relative "../travis_connection"
+require_relative "../github_proxy"
+
 module BacktraceAnalyzer
   class Analyzer < ::BaseAnalyzer
     def check_build(build)
@@ -56,6 +60,7 @@ module BacktraceAnalyzer
       failures.flatten.map do |trace|
         trace = trace.strip.gsub(/[ ]{2,}/, "").gsub("\r\r", "\r")
         trace = trace.scan(/^(?!vendor\/bundle).*$/).join
+        trace = trace.strip.gsub(/\e\[[0-9]+m/,"") # remove ascii coloring
         ['```', trace, '```'].join("\n")
       end.join("\n")
     end
