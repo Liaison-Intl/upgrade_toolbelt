@@ -37,7 +37,7 @@ module BacktraceAnalyzer
     end
 
     def report_results(build, failures)
-      return unless failures.any?
+      return unless failures.flatten.any?
 
       logger.info 'Reporting Results'
       github = GithubProxy.new(@repo_name, build.pull_request_number, @github_token)
