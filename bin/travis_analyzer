@@ -5,7 +5,6 @@ require "travis"
 
 require_relative "../lib/log_analyzer/analyzer"
 require_relative "../lib/backtrace_analyzer/analyzer"
-require_relative "../lib/knapsack_analyzer/analyzer"
 
 class TravisAnalyzer
   def initialize(options)
@@ -17,7 +16,6 @@ class TravisAnalyzer
 
     @analyzers = []
     @analyzers << LogAnalyzer::Analyzer.new(@travis, repo_name, github_token)
-    @analyzers << KnapsackAnalyzer::Analyzer.new(@travis, repo_name, github_token)
     @analyzers << BacktraceAnalyzer::Analyzer.new(@travis, repo_name, github_token)
   end
 
