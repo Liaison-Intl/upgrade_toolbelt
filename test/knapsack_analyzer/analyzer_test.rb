@@ -32,6 +32,18 @@ module KnapsackAnalyzer
       @travis.expects(:base_branch).returns("master")
       last_update = Time.now - 5
       @github.expects(:file_last_update_at).returns(last_update)
+      @github.expects(:pull_request_open?).returns(false)
+
+      @logger.expects(:warn).with("knapsack_minitest_report.json was last updated on #{last_update}. Skipping.")
+      @analyzer.check_build(build)
+    end
+
+    def test_knapsack_branch_not_out_of_date
+      build = mock('build', passed?: true)
+      @travis.expects(:base_branch).returns("master")
+      last_update = Time.now - 5
+      @github.expects(:file_last_update_at).returns(last_update)
+      @github.expects(:pull_request_open?).returns(true)
 
       @logger.expects(:warn).with("knapsack_minitest_report.json was last updated on #{last_update}. Skipping.")
       @analyzer.check_build(build)
@@ -54,6 +66,7 @@ END
       job = mock("job", log: mock(clean_body: job_body))
       build = mock('build', passed?: true, jobs: [job])
       @travis.expects(:base_branch).returns("master")
+      @github.expects(:pull_request_open?).returns(false)
 
       @github.expects(:file_last_update_at).returns(Time.new(2000,1,1))
 
@@ -78,6 +91,38 @@ END
       build = mock('build', passed?: true, jobs: [job])
       @travis.expects(:base_branch).returns("master")
       @github.expects(:file_last_update_at).returns(Time.new(2000,1,1))
+      @github.expects(:pull_request_open?).returns(false)
+
+      @logger.expects(:info).with("Let's update knapsack!")
+      @analyzer.expects(:fetch_current_timings)
+      @analyzer.expects(:generate_report).with(nil, {}, build)
+      @analyzer.expects(:publish)
+
+      @analyzer.check_build(build)
+    end
+
+    def test_rails_version_check
+      job_body = <<END
+.... Some test data ....
+Running Rails 4.2
+.... Some more test data ....
+      
+Knapsack report was generated
+{
+  "test1": 10,
+  "test2": 5
+}
+Knapsack global time execution for tests
+
+.... Some other data ....
+END
+
+      job = mock("job", log: mock(clean_body: job_body))
+      build = mock('build', passed?: true, jobs: [job])
+      @travis.expects(:base_branch).returns("master")
+      @github.expects(:pull_request_open?).returns(false)
+
+      @github.expects(:file_last_update_at).returns(Time.new(2000,1,1))
 
       @logger.expects(:info).with("Let's update knapsack!")
       @analyzer.expects(:fetch_current_timings)
@@ -93,6 +138,7 @@ END
       @travis.expects(:base_branch).returns("master")
       @travis.expects(:build_url).returns("URL")
       @github.expects(:file_last_update_at).returns(Time.new(2000,1,1))
+      @github.expects(:pull_request_open?).returns(false)
 
       previous_timings = {
         "test1" => 300,
@@ -132,6 +178,7 @@ END
       build = mock('build', passed?: true, jobs: [job], number: 42)
       @travis.expects(:base_branch).returns("master")
       @github.expects(:file_last_update_at).returns(Time.new(2000,1,1))
+      @github.expects(:pull_request_open?).returns(false)
 
       extracted_timings = {
         "test3" => 300,
@@ -156,6 +203,7 @@ END
       @github.expects(:create_commit).with(message, "knapsack_minitest_report.json", expected_json, "feature/knapsack_minitest_report-update")
       @github.expects(:create_pull_request).with("master", "feature/knapsack_minitest_report-update", message, "REPORT")
 
-      @analyzer.check_build(build)    end
+      @analyzer.check_build(build)
+    end
   end
 end

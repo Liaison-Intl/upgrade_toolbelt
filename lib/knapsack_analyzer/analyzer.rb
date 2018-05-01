@@ -18,7 +18,7 @@ module KnapsackAnalyzer
       @knapsack_start = /^Knapsack report was generated/
       @knapsack_end = /^Knapsack global time execution for tests/
 
-      @knapsack_rails_match = /Rails 3.1/
+      @knapsack_rails_match = /Rails 3\.2/
     end
 
     def check_build(build)
@@ -124,13 +124,24 @@ EOF
 
     def knapsack_out_of_date?
       two_weeks_ago = Time.now - 1209600 # 14 days in seconds
-      last_update = github.file_last_update_at(@knapsack_file_path, "heads/#{@knapsack_branch}")
+
+      last_update = nil
+      if pull_request_open?
+        last_update = github.file_last_update_at(@knapsack_file_path, "heads/#{@knapsack_branch}")
+      else
+        last_update = github.file_last_update_at(@knapsack_file_path, "heads/master")
+      end
+
       if last_update > two_weeks_ago
         logger.warn("#{@knapsack_file_path} was last updated on #{last_update.localtime}. Skipping.")
         false
       else
         true
       end
+    end
+
+    def pull_request_open?
+      github.pull_request_open?("master", @knapsack_branch)
     end
 
     def master_branch?(build)
