@@ -60,6 +60,19 @@ class GithubProxy
     client.create_pull_request(@repo_name, merge_into_branch, merge_from_branch, title, body)
   end
 
+  def pull_request_open?(merge_into_branch, merge_from_branch)
+    prs = client.pull_requests(@repo_name, state: "open")
+    prs.each do |pr|
+      pr_head_ref = pr[:head][:ref]
+      pr_base_ref = pr[:base][:ref]
+
+      if [merge_into_branch, merge_from_branch] == [pr_base_ref, pr_head_ref]
+        return pr[:number]
+      end
+    end
+    return nil
+  end
+
   private
 
   attr_reader :github_token, :pull_request_number, :repo_name
