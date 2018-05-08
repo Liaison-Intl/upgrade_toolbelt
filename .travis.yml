@@ -1,5 +1,5 @@
 rvm:
-  - ruby-2.3.6-p0
+  - ruby-2.3.7-p0
 
 sudo: required
 services:

@@ -114,4 +114,36 @@ class GithubProxyTest < Minitest::Test
       octomock.verify
     end
   end
+
+  def test_pull_request_open?
+    github = GithubProxy.new("repo", "pr1", "token")
+    octomock = MiniTest::Mock.new
+
+    branches_json = [
+      {
+        head: {ref: "branch_not_it"},
+        base: {ref: "branch1"},
+        number: 1
+      },
+      {
+        head: {ref: "branch2"},
+        base: {ref: "branch_not_it"},
+        number: 2
+      },
+      {
+        head: {ref: "branch2"},
+        base: {ref: "branch1"},
+        number: 3
+      }
+    ]
+
+    octomock.expect(:pull_requests, branches_json, ["repo", state: "open"])
+    octomock.expect(:pull_requests, branches_json, ["repo", state: "open"])
+
+    github.stub(:client, octomock) do
+      assert github.pull_request_open?("branch1", "branch2")
+      assert !github.pull_request_open?("branch1", "branch3")
+      octomock.verify
+    end
+  end
 end
